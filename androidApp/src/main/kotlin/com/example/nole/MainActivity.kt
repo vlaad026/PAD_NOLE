@@ -21,8 +21,6 @@ class MainActivity : ComponentActivity() {
 // NUEVA RAMA
 // -------------------------
 
-//Primer commit en login
-
 @Preview
 @Composable
 fun AppAndroidPreview() {
