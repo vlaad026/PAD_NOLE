@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
 }
 
 // NUEVA RAMA
+// -------------------------
 
 @Preview
 @Composable
