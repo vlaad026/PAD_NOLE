@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// PADEOOOOOOO
+// PADEOOOOOOO chavales
 
 @Preview
 @Composable
