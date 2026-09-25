@@ -18,19 +18,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// NUEVA RAMA
-// -------------------------
-// TERCERA LINEA
+// PADEOOOOOOO chavales
+
+//Primer commit en login
+
 @Preview
 @Composable
 fun AppAndroidPreview() {
     App()
 }
 
-
-
-
-
-// NUEVO CAMBIO
-// NUEVO CAMBIO
-// MERGE PABLO
+// MERGE 2
