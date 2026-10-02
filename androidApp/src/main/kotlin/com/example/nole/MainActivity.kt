@@ -27,3 +27,5 @@ class MainActivity : ComponentActivity() {
 fun AppAndroidPreview() {
     App()
 }
+
+// MERGE 2
