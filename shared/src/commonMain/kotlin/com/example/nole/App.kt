@@ -1,31 +1,33 @@
 package com.example.nole
 
 import DashboardScreen
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.nole.ui.login.LoginScreen
-import org.jetbrains.compose.resources.painterResource
+import com.example.nole.Features.Login.LoginScreen
 
-import nole.shared.generated.resources.Res
-import nole.shared.generated.resources.compose_multiplatform
+enum class Pantalla {
+    DASHBOARD,
+    LOGIN
+}
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        DashboardScreen()
-        LoginScreen()
+        var pantallaActual by remember { mutableStateOf(Pantalla.DASHBOARD) }
+
+        when (pantallaActual) {
+            Pantalla.DASHBOARD -> {
+                DashboardScreen(
+                    onNavigateToLogin = {
+                        pantallaActual = Pantalla.LOGIN
+                    }
+                )
+            }
+            Pantalla.LOGIN -> {
+                LoginScreen()
+            }
+        }
     }
 }

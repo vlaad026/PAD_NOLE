@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(onNavigateToLogin: () -> Unit) {
 
     val rosaPrincipal = Color(0xFFE91E63)
     val rosaFondo = Color(0xFFFCE4EC)
@@ -31,6 +31,7 @@ fun DashboardScreen() {
             OutlinedButton(
                 onClick = {
                     println("Botón de registro/login pulsado")
+                    onNavigateToLogin()
                 },
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = rosaPrincipal

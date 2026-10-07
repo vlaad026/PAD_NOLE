@@ -1,4 +1,4 @@
-package com.example.nole.ui.login
+package com.example.nole.Features.Login
 
 data class LoginUiState(
     val email: String = "",
