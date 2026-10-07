@@ -46,10 +46,8 @@ class LoginViewModel : ViewModel() {
                 _uiState.update { it.copy(errorMessage = "Las contraseñas no coinciden") }
                 return
             }
-            // Lógica de registro exitoso
             _uiState.update { it.copy(isSuccess = true) }
         } else {
-            // Lógica de login exitoso
             _uiState.update { it.copy(isSuccess = true) }
         }
     }
