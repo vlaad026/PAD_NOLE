@@ -19,14 +19,38 @@ class LoginViewModel : ViewModel() {
         _uiState.update { it.copy(password = newPassword, errorMessage = null) }
     }
 
-    fun onLoginClick() {
-        val currentState = _uiState.value
-        if (currentState.email.isBlank() || currentState.password.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Por favor, rellenar todos los campos") }
+    fun onConfirmPasswordChanged(newConfirmPassword: String) {
+        _uiState.update { it.copy(confirmPassword = newConfirmPassword, errorMessage = null) }
+    }
+
+    fun onToggleMode() {
+        _uiState.update {
+            it.copy(
+                isRegisterMode = !it.isRegisterMode,
+                errorMessage = null,
+                confirmPassword = ""
+            )
+        }
+    }
+
+    fun onSubmitClick() {
+        val state = _uiState.value
+
+        if (state.email.isBlank() || state.password.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Por favor, rellena todos los campos") }
             return
         }
 
-        // Aquí irá la validación real con la base de datos/API
-        _uiState.update { it.copy(isSuccess = true) }
+        if (state.isRegisterMode) {
+            if (state.password != state.confirmPassword) {
+                _uiState.update { it.copy(errorMessage = "Las contraseñas no coinciden") }
+                return
+            }
+            // Lógica de registro exitoso
+            _uiState.update { it.copy(isSuccess = true) }
+        } else {
+            // Lógica de login exitoso
+            _uiState.update { it.copy(isSuccess = true) }
+        }
     }
 }
