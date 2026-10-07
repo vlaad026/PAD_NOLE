@@ -1,4 +1,4 @@
-package com.example.nole.ui.login
+package com.example.nole.Features.Login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -78,7 +78,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(Res.drawable.logo_nole),
+                painter = painterResource(Res.drawable.nole_negro),
                 contentDescription = "Logo NOLE",
                 modifier = Modifier
                     .size(150.dp)
