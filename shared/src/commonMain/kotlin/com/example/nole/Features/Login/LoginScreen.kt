@@ -1,11 +1,11 @@
 package com.example.nole.Features.Login
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,8 +34,11 @@ fun LoginScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (state.isSuccess) {
-        onLoginSuccess()
+    LaunchedEffect(state.isSuccess) {
+        if (state.isSuccess) {
+            onLoginSuccess()
+            viewModel.onSuccessHandled()
+        }
     }
 
     val customTextFieldColors = OutlinedTextFieldDefaults.colors(

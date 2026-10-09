@@ -1,4 +1,4 @@
-package com.example.nole.ui.dashboard // Ajusta el paquete según la estructura de tu proyecto
+package com.example.nole.Features.Dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke

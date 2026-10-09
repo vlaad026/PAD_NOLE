@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 // Imports directos respetando las mayúsculas de tus carpetas
 import com.example.nole.Features.Login.LoginScreen
-import com.example.nole.ui.dashboard.DashboardScreen
+import com.example.nole.Features.Dashboard.DashboardScreen
 
 enum class Pantalla {
     DASHBOARD,
