@@ -1,5 +1,6 @@
 package com.example.nole.Features.Login
 
+
 data class LoginUiState(
     val email: String = "",
     val password: String = "",

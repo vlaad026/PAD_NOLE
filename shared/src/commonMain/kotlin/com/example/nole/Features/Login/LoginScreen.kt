@@ -1,5 +1,6 @@
 package com.example.nole.Features.Login
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,11 +20,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jetbrains.compose.resources.painterResource
 
-// Importa los recursos de tu proyecto KMP
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.*
 
-val NolePink = Color(0xFFFF1493)
+
+val NolePink = Color(0xFFFF1493) // cambiar color;
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,12 +36,14 @@ fun LoginScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
             onLoginSuccess()
             viewModel.onSuccessHandled()
         }
     }
+
 
     val customTextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = NolePink,
@@ -50,6 +54,7 @@ fun LoginScreen(
         unfocusedTextColor = Color.White,
         cursorColor = NolePink
     )
+
 
     Scaffold(
         topBar = {
@@ -88,6 +93,7 @@ fun LoginScreen(
                     .padding(bottom = 12.dp)
             )
 
+
             Text(
                 text = if (state.isRegisterMode) "Crear una cuenta" else "Iniciar Sesión",
                 color = Color.White,
@@ -95,7 +101,9 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold
             )
 
+
             Spacer(modifier = Modifier.height(24.dp))
+
 
             OutlinedTextField(
                 value = state.email,
@@ -107,7 +115,9 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+
             Spacer(modifier = Modifier.height(16.dp))
+
 
             OutlinedTextField(
                 value = state.password,
@@ -120,8 +130,10 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+
             if (state.isRegisterMode) {
                 Spacer(modifier = Modifier.height(16.dp))
+
 
                 OutlinedTextField(
                     value = state.confirmPassword,
@@ -135,6 +147,7 @@ fun LoginScreen(
                 )
             }
 
+
             state.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -144,9 +157,12 @@ fun LoginScreen(
                 )
             }
 
+
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón Principal
+
+            // Botón Principal;
+
             Button(
                 onClick = { viewModel.onSubmitClick() },
                 colors = ButtonDefaults.buttonColors(containerColor = NolePink, contentColor = Color.White),
@@ -161,9 +177,12 @@ fun LoginScreen(
                 )
             }
 
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de texto alternar modo en color Rosa Neón (#FF1493)
+
+            // Botón de texto alternar modo en color Rosa Neón;
+
             TextButton(onClick = { viewModel.onToggleMode() }) {
                 Text(
                     text = if (state.isRegisterMode) "¿Ya tienes cuenta? Inicia sesión aquí" else "¿No tienes cuenta? Regístrate aquí",
