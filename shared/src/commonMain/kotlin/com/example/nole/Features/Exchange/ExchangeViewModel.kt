@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 private const val ImageCount = 2
@@ -86,12 +87,14 @@ class ExchangeViewModel(
 
 
     fun onConfirmPurchase() {
-        val sold = MarketplaceRepository.markSold(productId)
-        local.update {
-            it.copy(
-                showPurchaseDialog = false,
-                purchaseMessage = if (sold) "Compra realizada con éxito" else null,
-            )
+        viewModelScope.launch {
+            val sold = MarketplaceRepository.markSold(productId)
+            local.update {
+                it.copy(
+                    showPurchaseDialog = false,
+                    purchaseMessage = if (sold) "Compra realizada con éxito" else "No se ha podido completar la compra",
+                )
+            }
         }
     }
 
@@ -109,7 +112,22 @@ class ExchangeViewModel(
     fun onSendMessage() {
         val text = local.value.draftMessage
         if (text.isBlank()) return
-        MarketplaceRepository.addMessage(productId, text, fromSeller = false)
-        local.update { it.copy(draftMessage = "") }
+        val loggedIn = MarketplaceRepository.currentUser.value != null
+        viewModelScope.launch {
+            val sent = MarketplaceRepository.sendMessage(productId, text)
+            local.update {
+                if (sent) {
+                    it.copy(draftMessage = "")
+                } else {
+                    it.copy(
+                        purchaseMessage = if (loggedIn) {
+                            "No se ha podido enviar el mensaje"
+                        } else {
+                            "Inicia sesión para enviar mensajes"
+                        },
+                    )
+                }
+            }
+        }
     }
 }

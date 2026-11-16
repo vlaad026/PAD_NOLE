@@ -1,15 +1,19 @@
 package com.example.nole
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nole.Features.Chats.ChatsScreen
 import com.example.nole.Features.Dashboard.DashboardScreen
 import com.example.nole.Features.Exchange.ExchangeScreen
 import com.example.nole.Features.Login.LoginScreen
+import com.example.nole.data.MarketplaceRepository
 import com.example.nole.ui.NoleTheme
 
 enum class Pantalla {
@@ -22,8 +26,25 @@ enum class Pantalla {
 @Composable
 @Preview
 fun App() {
-    var pantallaActual by remember { mutableStateOf(Pantalla.DASHBOARD) }
+    var pantallaActual by remember { mutableStateOf(Pantalla.LOGIN) }
     var productoId by remember { mutableStateOf<String?>(null) }
+    var huboSesion by remember { mutableStateOf(false) }
+    var authEpoch by remember { mutableIntStateOf(0) }
+    val currentUser by MarketplaceRepository.currentUser.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        MarketplaceRepository.start()
+    }
+
+    LaunchedEffect(currentUser?.id) {
+        if (currentUser != null) {
+            huboSesion = true
+        } else if (huboSesion) {
+            productoId = null
+            pantallaActual = Pantalla.LOGIN
+            authEpoch += 1
+        }
+    }
 
     NoleTheme {
         when (pantallaActual) {
@@ -43,12 +64,13 @@ fun App() {
             }
             Pantalla.LOGIN -> {
                 LoginScreen(
-                    onBackClick = {
+                    authKey = "login-$authEpoch",
+                    onBackClick = {},
+                    onLoginSuccess = {
+                        productoId = null
                         pantallaActual = Pantalla.DASHBOARD
                     },
-                    onLoginSuccess = {
-                        pantallaActual = Pantalla.DASHBOARD
-                    }
+                    showBack = false,
                 )
             }
             Pantalla.EXCHANGE -> {

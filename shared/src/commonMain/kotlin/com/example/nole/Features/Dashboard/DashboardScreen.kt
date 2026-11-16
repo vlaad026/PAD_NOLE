@@ -26,6 +26,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -38,11 +41,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,7 +69,6 @@ import nole.shared.generated.resources.ic_search
 import nole.shared.generated.resources.nole_negro
 import nole.shared.generated.resources.nole_rosa
 import com.example.nole.ui.noleTextFieldColors
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -72,7 +80,30 @@ fun DashboardScreen(
     onProductClick: (String) -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var confirmLogout by remember { mutableStateOf(false) }
 
+    if (confirmLogout) {
+        AlertDialog(
+            onDismissRequest = { confirmLogout = false },
+            title = { Text("Cerrar sesión") },
+            text = { Text("¿Seguro que quieres cerrar sesión?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmLogout = false
+                        viewModel.logout()
+                    },
+                ) {
+                    Text("Cerrar sesión", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmLogout = false }) {
+                    Text("Cancelar")
+                }
+            },
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -86,6 +117,7 @@ fun DashboardScreen(
             onSearchChanged = viewModel::onSearchChanged,
             onNavigateToChats = onNavigateToChats,
             onNavigateToLogin = onNavigateToLogin,
+            onLogoutClick = { confirmLogout = true },
         )
 
 
@@ -155,6 +187,7 @@ private fun MarketplaceHeader(
     onSearchChanged: (String) -> Unit,
     onNavigateToChats: () -> Unit,
     onNavigateToLogin: () -> Unit,
+    onLogoutClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -194,15 +227,24 @@ private fun MarketplaceHeader(
         ) {
             HeaderActionButton(
                 text = "Chats",
-                icon = Res.drawable.ic_chat,
+                icon = painterResource(Res.drawable.ic_chat),
                 onClick = onNavigateToChats
             )
             Spacer(modifier = Modifier.width(8.dp))
-            HeaderActionButton(
-                text = "Iniciar sesión",
-                icon = Res.drawable.ic_person,
-                onClick = onNavigateToLogin
-            )
+            if (state.currentUsername != null) {
+                HeaderActionButton(
+                    text = "Cerrar sesión",
+                    icon = rememberVectorPainter(Icons.AutoMirrored.Filled.ExitToApp),
+                    onClick = onLogoutClick,
+                    contentColor = MaterialTheme.colorScheme.error,
+                )
+            } else {
+                HeaderActionButton(
+                    text = "Iniciar sesión",
+                    icon = painterResource(Res.drawable.ic_person),
+                    onClick = onNavigateToLogin
+                )
+            }
         }
 
 
@@ -228,19 +270,20 @@ private fun MarketplaceHeader(
 @Composable
 private fun HeaderActionButton(
     text: String,
-    icon: DrawableResource,
+    icon: Painter,
     onClick: () -> Unit,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     OutlinedButton(
         onClick = onClick,
         modifier = Modifier.height(32.dp),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(1.dp, contentColor),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor)
     ) {
         Icon(
-            painter = painterResource(icon),
+            painter = icon,
             contentDescription = null,
             modifier = Modifier.size(14.dp)
         )
@@ -266,7 +309,7 @@ private fun SectionButton(
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Text(text = text, fontWeight = FontWeight.Bold)
@@ -275,8 +318,11 @@ private fun SectionButton(
         OutlinedButton(
             onClick = onClick,
             shape = RoundedCornerShape(20.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.primary,
+            )
         ) {
             Text(text = text, fontWeight = FontWeight.Bold)
         }
@@ -297,7 +343,7 @@ private fun FilterPanel(
     val checkboxColors = CheckboxDefaults.colors(
         checkedColor = MaterialTheme.colorScheme.primary,
         uncheckedColor = MaterialTheme.colorScheme.outline,
-        checkmarkColor = Color.White
+        checkmarkColor = MaterialTheme.colorScheme.onPrimary
     )
 
 
@@ -405,7 +451,7 @@ private fun FilterPanel(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Text(text = "Aplicar filtros", fontWeight = FontWeight.Bold)

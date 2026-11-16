@@ -9,12 +9,12 @@ import androidx.compose.ui.graphics.Color
 
 private val NoleLightColors = lightColorScheme(
     primary = NoleIndigo,
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFDBE4FF),
+    onPrimary = NoleSurface,
+    primaryContainer = Color(0xFFD6E0F5),
     onPrimaryContainer = NoleIndigo,
     secondary = NoleAmber,
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFEF3C7),
+    onSecondary = NoleSurface,
+    secondaryContainer = Color(0xFFF3E6C8),
     onSecondaryContainer = Color(0xFF92400E),
     tertiary = NoleGold,
     onTertiary = Color(0xFF1C1917),
@@ -22,14 +22,14 @@ private val NoleLightColors = lightColorScheme(
     onTertiaryContainer = Color(0xFF1C1917),
     background = NoleBackground,
     onBackground = NoleInk,
-    surface = Color.White,
+    surface = NoleSurface,
     onSurface = NoleInk,
-    surfaceVariant = Color(0xFFF1F5F9),
-    onSurfaceVariant = Color(0xFF475569),
+    surfaceVariant = NoleSurfaceVariant,
+    onSurfaceVariant = NoleSlate,
     outline = NoleBorder,
-    outlineVariant = Color(0xFFF1F5F9),
+    outlineVariant = Color(0xFFD5DEE8),
     error = Color(0xFFB91C1C),
-    onError = Color.White,
+    onError = NoleSurface,
 )
 
 @Composable
@@ -51,6 +51,8 @@ fun noleTextFieldColors(): TextFieldColors {
         focusedTextColor = colors.onSurface,
         unfocusedTextColor = colors.onSurface,
         cursorColor = colors.primary,
+        focusedContainerColor = colors.surface,
+        unfocusedContainerColor = colors.surfaceVariant,
         focusedPlaceholderColor = colors.onSurfaceVariant,
         unfocusedPlaceholderColor = colors.onSurfaceVariant,
     )

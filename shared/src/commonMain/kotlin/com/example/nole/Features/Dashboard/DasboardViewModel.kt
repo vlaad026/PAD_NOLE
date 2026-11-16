@@ -23,8 +23,12 @@ class DashboardViewModel : ViewModel() {
     val uiState: StateFlow<DashboardUiState> = combine(
         filters,
         MarketplaceRepository.items,
-    ) { current, items ->
-        current.copy(visibleProducts = items.filter { it.matches(current) })
+        MarketplaceRepository.currentUser,
+    ) { current, items, user ->
+        current.copy(
+            visibleProducts = items.filter { it.matches(current) },
+            currentUsername = user?.username,
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -86,6 +90,11 @@ class DashboardViewModel : ViewModel() {
         filters.update {
             it.copy(priceToInput = value.filter(Char::isDigit).take(7), filterError = null)
         }
+    }
+
+
+    fun logout() {
+        MarketplaceRepository.logout()
     }
 
 

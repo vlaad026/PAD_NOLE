@@ -2,10 +2,13 @@ package com.example.nole.Features.Login
 
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.nole.data.MarketplaceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 class LoginViewModel : ViewModel() {
@@ -13,11 +16,6 @@ class LoginViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-
-    // email = contraseña. Está en memoria: se pierde al cerrar la app.;
-
-    private val users = mutableMapOf("test@nole.com" to "1234")
 
 
     fun onEmailChanged(newEmail: String) {
@@ -35,6 +33,11 @@ class LoginViewModel : ViewModel() {
     }
 
 
+    fun resetToLogin() {
+        _uiState.value = LoginUiState()
+    }
+
+
     fun onToggleMode() {
         _uiState.update {
             it.copy(
@@ -48,31 +51,43 @@ class LoginViewModel : ViewModel() {
 
     fun onSubmitClick() {
         val state = _uiState.value
-
+        if (state.isLoading) return
 
         if (state.email.isBlank() || state.password.isBlank()) {
             _uiState.update { it.copy(errorMessage = "Por favor, rellena todos los campos") }
             return
         }
 
-
         if (state.isRegisterMode) {
+            if (!state.email.contains("@")) {
+                _uiState.update { it.copy(errorMessage = "Escribe un correo válido") }
+                return
+            }
             if (state.password != state.confirmPassword) {
                 _uiState.update { it.copy(errorMessage = "Las contraseñas no coinciden") }
                 return
             }
-            if (users.containsKey(state.email)) {
-                _uiState.update { it.copy(errorMessage = "Ese correo ya está registrado") }
-                return
+        }
+
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+        viewModelScope.launch {
+            val error = if (state.isRegisterMode) {
+                MarketplaceRepository.register(
+                    username = state.email.substringBefore("@").trim(),
+                    email = state.email.trim(),
+                    password = state.password,
+                )
+            } else {
+                MarketplaceRepository.login(state.email.trim(), state.password)
             }
-            users[state.email] = state.password
-            _uiState.update { it.copy(isSuccess = true) }
-        } else {
-            if (users[state.email] != state.password) {
-                _uiState.update { it.copy(errorMessage = "Correo o contraseña incorrectos") }
-                return
+            if (error != null) println("NOLE auth: $error")
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = error,
+                    isSuccess = error == null,
+                )
             }
-            _uiState.update { it.copy(isSuccess = true) }
         }
     }
 

@@ -45,7 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -343,7 +342,7 @@ private fun ProductPane(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Icon(
@@ -444,7 +443,7 @@ private fun MessageBubble(message: ChatMessage) {
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .clip(RoundedCornerShape(12.dp))
-                .background(if (ownMessage) colors.tertiaryContainer else colors.surface)
+                .background(if (ownMessage) colors.tertiaryContainer else colors.surfaceVariant)
                 .border(
                     width = 1.dp,
                     color = if (ownMessage) colors.tertiary else colors.outline,

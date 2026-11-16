@@ -19,6 +19,7 @@ data class DashboardUiState(
     val appliedPriceTo: Int? = null,
     val visibleProducts: List<CatalogItem> = emptyList(),
     val filterError: String? = null,
+    val currentUsername: String? = null,
 )
 
 

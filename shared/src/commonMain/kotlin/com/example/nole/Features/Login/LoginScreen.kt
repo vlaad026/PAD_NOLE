@@ -26,11 +26,17 @@ import org.jetbrains.compose.resources.painterResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel { LoginViewModel() },
+    authKey: String = "login",
+    viewModel: LoginViewModel = viewModel(key = authKey) { LoginViewModel() },
     onBackClick: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {}
+    onLoginSuccess: () -> Unit = {},
+    showBack: Boolean = true,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(authKey) {
+        viewModel.resetToLogin()
+    }
 
 
     LaunchedEffect(state.isSuccess) {
@@ -50,13 +56,15 @@ fun LoginScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    TextButton(onClick = onBackClick) {
-                        Text(
-                            text = "❮ Volver",
-                            color = colors.onSurface,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    if (showBack) {
+                        TextButton(onClick = onBackClick) {
+                            Text(
+                                text = "❮ Volver",
+                                color = colors.onSurface,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -84,7 +92,7 @@ fun LoginScreen(
 
 
             Text(
-                text = if (state.isRegisterMode) "Crear una cuenta" else "Iniciar Sesión",
+                text = if (state.isRegisterMode) "Crear una cuenta" else "Iniciar sesión",
                 color = colors.onBackground,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
@@ -160,7 +168,7 @@ fun LoginScreen(
                     .height(50.dp)
             ) {
                 Text(
-                    text = if (state.isRegisterMode) "Registrarse" else "Iniciar Sesión",
+                    text = if (state.isRegisterMode) "Registrarse" else "Iniciar sesión",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -174,7 +182,7 @@ fun LoginScreen(
 
             TextButton(onClick = { viewModel.onToggleMode() }) {
                 Text(
-                    text = if (state.isRegisterMode) "¿Ya tienes cuenta? Inicia sesión aquí" else "¿No tienes cuenta? Regístrate aquí",
+                    text = if (state.isRegisterMode) "¿Ya tienes cuenta? Inicia sesión" else "¿No tienes cuenta? Regístrate",
                     color = colors.primary,
                     fontWeight = FontWeight.SemiBold
                 )

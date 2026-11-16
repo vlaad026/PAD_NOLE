@@ -30,6 +30,7 @@ data class CatalogItem(
     val sellerUsername: String,
     val section: MarketplaceSection,
     val isSold: Boolean = false,
+    val sellerId: String = "",
 ) {
     val priceLabel: String
         get() = priceEuros.toEuroLabel()
@@ -41,6 +42,9 @@ data class ChatMessage(
     val text: String,
     val fromSeller: Boolean,
     val sentAtMillis: Long = 0L,
+    val remoteId: String = "",
+    val senderId: String = "",
+    val receiverId: String = "",
 )
 
 
