@@ -121,12 +121,13 @@ private fun CatalogItem.matches(state: DashboardUiState): Boolean {
     val query = state.searchQuery.trim()
     val matchesQuery = query.isEmpty() ||
             title.contains(query, ignoreCase = true) ||
+            subCategory.contains(query, ignoreCase = true) ||
             category.contains(query, ignoreCase = true) ||
             description.contains(query, ignoreCase = true)
-    val matchesCategory = state.selectedCategories.isEmpty() || category in state.selectedCategories
+    val matchesCategory = state.selectedCategories.isEmpty() || subCategory in state.selectedCategories
     val matchesCondition = state.selectedConditions.isEmpty() || condition in state.selectedConditions
-    val matchesFrom = state.appliedPriceFrom == null || priceEuros >= state.appliedPriceFrom
-    val matchesTo = state.appliedPriceTo == null || priceEuros <= state.appliedPriceTo
+    val matchesFrom = state.appliedPriceFrom == null || price >= state.appliedPriceFrom.toDouble()
+    val matchesTo = state.appliedPriceTo == null || price <= state.appliedPriceTo.toDouble()
     return matchesQuery && matchesCategory && matchesCondition && matchesFrom && matchesTo
 }
 

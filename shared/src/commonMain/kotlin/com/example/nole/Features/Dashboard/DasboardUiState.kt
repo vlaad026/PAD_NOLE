@@ -5,7 +5,7 @@ import com.example.nole.model.CatalogItem
 import com.example.nole.model.MarketplaceSection
 
 
-val ProductConditions = listOf("Nuevo", "Usado")
+val ProductConditions = listOf("Nuevo", "Como nuevo", "Buen estado", "Sin abrir")
 
 
 data class DashboardUiState(

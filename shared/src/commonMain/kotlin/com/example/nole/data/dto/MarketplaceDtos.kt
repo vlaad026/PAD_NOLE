@@ -17,11 +17,12 @@ data class CatalogItemDto(
     @SerialName("seller_id") val sellerId: String = "",
     val title: String = "",
     val description: String = "",
+    val price: Double = 0.0,
     val category: String = "",
+    @SerialName("sub_category") val subCategory: String = "",
     val condition: String = "",
-    val section: String = "",
-    @SerialName("price_euros") val priceEuros: Int = 0,
     @SerialName("image_name") val imageName: String = "",
+    val images: List<String> = emptyList(),
     @SerialName("is_sold") val isSold: Boolean = false,
 )
 

@@ -13,9 +13,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-private const val ImageCount = 2
-
-
 private data class ExchangeLocalState(
     val imageIndex: Int = 0,
     val draftMessage: String = "",
@@ -41,16 +38,20 @@ class ExchangeViewModel(
         if (item == null) {
             ExchangeUiState(productId = productId, isMissing = true)
         } else {
+            val gallery = item.gallery
+            val index = if (gallery.isEmpty()) 0 else ui.imageIndex.mod(gallery.size)
             ExchangeUiState(
                 productId = item.id,
                 title = item.title,
                 description = item.description,
                 priceLabel = item.priceLabel,
-                location = item.location,
-                size = item.size,
-                sellerUsername = item.sellerUsername,
+                subCategory = item.subCategory,
+                condition = item.condition,
+                sellerUsername = item.sellerName,
                 section = item.section,
-                imageIndex = ui.imageIndex,
+                imageName = item.imageName,
+                images = gallery,
+                imageIndex = index,
                 draftMessage = ui.draftMessage,
                 messages = messages[item.id].orEmpty(),
                 isSold = item.isSold,
@@ -66,12 +67,27 @@ class ExchangeViewModel(
 
 
     fun onPreviousImage() {
-        local.update { it.copy(imageIndex = (it.imageIndex + ImageCount - 1) % ImageCount) }
+        shiftImage(-1)
     }
 
 
     fun onNextImage() {
-        local.update { it.copy(imageIndex = (it.imageIndex + 1) % ImageCount) }
+        shiftImage(1)
+    }
+
+
+    fun onSelectImage(index: Int) {
+        local.update { it.copy(imageIndex = index) }
+    }
+
+
+    private fun shiftImage(delta: Int) {
+        val count = uiState.value.images.size
+        if (count <= 1) return
+        local.update { state ->
+            val next = (state.imageIndex + delta).mod(count)
+            state.copy(imageIndex = next)
+        }
     }
 
 

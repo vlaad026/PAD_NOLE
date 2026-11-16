@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,8 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.model.ChatMessage
-import com.example.nole.model.MarketplaceSection
 import com.example.nole.ui.noleTextFieldColors
+import com.example.nole.ui.resolveDrawableResource
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.ic_arrow_left
 import nole.shared.generated.resources.ic_arrow_right
@@ -61,8 +64,7 @@ import nole.shared.generated.resources.ic_bag
 import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_person
 import nole.shared.generated.resources.ic_send
-import nole.shared.generated.resources.nole_azul
-import nole.shared.generated.resources.nole_blanco
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -115,6 +117,7 @@ fun ExchangeScreen(
                         state = state,
                         onPreviousImage = viewModel::onPreviousImage,
                         onNextImage = viewModel::onNextImage,
+                        onSelectImage = viewModel::onSelectImage,
                         onBuyClick = viewModel::onBuyClick,
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
@@ -239,14 +242,24 @@ private fun ProductPane(
     state: ExchangeUiState,
     onPreviousImage: () -> Unit,
     onNextImage: () -> Unit,
+    onSelectImage: (Int) -> Unit,
     onBuyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val productImage = when {
-        state.imageIndex % 2 == 0 && state.section == MarketplaceSection.VEHICULOS -> Res.drawable.nole_blanco
-        state.imageIndex % 2 == 0 -> Res.drawable.nole_azul
-        state.section == MarketplaceSection.VEHICULOS -> Res.drawable.nole_azul
-        else -> Res.drawable.nole_blanco
+    val images = state.images.ifEmpty { listOf(state.imageName).filter { it.isNotBlank() } }
+    val index = if (images.isEmpty()) 0 else state.imageIndex.mod(images.size)
+    val hasGallery = images.size > 1
+    val pagerState = rememberPagerState(initialPage = index, pageCount = { images.size.coerceAtLeast(1) })
+
+    LaunchedEffect(index, images.size) {
+        if (images.isNotEmpty() && pagerState.currentPage != index) {
+            pagerState.scrollToPage(index)
+        }
+    }
+    LaunchedEffect(pagerState.currentPage) {
+        if (hasGallery && pagerState.currentPage != index) {
+            onSelectImage(pagerState.currentPage)
+        }
     }
 
 
@@ -256,43 +269,106 @@ private fun ProductPane(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(360.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFFF3F5F8))
         ) {
-            IconButton(onClick = onPreviousImage) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Imagen anterior",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(28.dp)
-                )
+            if (images.isEmpty()) {
+                Box(Modifier.fillMaxSize())
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                    userScrollEnabled = hasGallery,
+                ) { page ->
+                    Image(
+                        painter = painterResource(resolveDrawableResource(images[page])),
+                        contentDescription = state.title,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        contentScale = ContentScale.Fit,
+                    )
+                }
             }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(180.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(productImage),
-                    contentDescription = state.title,
+            if (hasGallery) {
+                GalleryArrow(
+                    icon = Res.drawable.ic_arrow_left,
+                    description = "Imagen anterior",
+                    onClick = onPreviousImage,
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp),
+                )
+                GalleryArrow(
+                    icon = Res.drawable.ic_arrow_right,
+                    description = "Imagen siguiente",
+                    onClick = onNextImage,
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
+                )
+                Text(
+                    text = "${index + 1} / ${images.size}",
+                    color = Color(0xFFF1F5F9),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentScale = ContentScale.Fit
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xCC0F172A))
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
                 )
             }
-            IconButton(onClick = onNextImage) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_right),
-                    contentDescription = "Imagen siguiente",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(28.dp)
-                )
+        }
+        if (hasGallery) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                images.forEachIndexed { imagePosition, _ ->
+                    val selected = imagePosition == index
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 3.dp)
+                            .size(if (selected) 8.dp else 6.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (selected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outline
+                                }
+                            )
+                            .clickable { onSelectImage(imagePosition) }
+                    )
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                images.forEachIndexed { imagePosition, name ->
+                    val selected = imagePosition == index
+                    Image(
+                        painter = painterResource(resolveDrawableResource(name)),
+                        contentDescription = "Foto ${imagePosition + 1}",
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFF3F5F8))
+                            .border(
+                                width = if (selected) 2.dp else 1.dp,
+                                color = if (selected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outline
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                            )
+                            .clickable { onSelectImage(imagePosition) }
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit,
+                    )
+                }
             }
         }
 
@@ -310,12 +386,7 @@ private fun ProductPane(
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = state.location,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = state.size,
+            text = listOf(state.subCategory, state.condition).filter { it.isNotBlank() }.joinToString(" · "),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -358,6 +429,30 @@ private fun ProductPane(
                 )
             }
         }
+    }
+}
+
+
+@Composable
+private fun GalleryArrow(
+    icon: DrawableResource,
+    description: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(Color(0xE6F3F5F8)),
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = description,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp),
+        )
     }
 }
 

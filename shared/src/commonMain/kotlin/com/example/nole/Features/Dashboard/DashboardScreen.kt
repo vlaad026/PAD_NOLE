@@ -67,7 +67,7 @@ import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_person
 import nole.shared.generated.resources.ic_search
 import nole.shared.generated.resources.nole_azul
-import nole.shared.generated.resources.nole_blanco
+import com.example.nole.ui.resolveDrawableResource
 import com.example.nole.ui.noleTextFieldColors
 import org.jetbrains.compose.resources.painterResource
 
@@ -143,7 +143,6 @@ fun DashboardScreen(
                     )
                     ProductGrid(
                         products = state.visibleProducts,
-                        section = state.section,
                         onProductClick = onProductClick,
                         modifier = Modifier.weight(1f).fillMaxSize()
                     )
@@ -169,7 +168,6 @@ fun DashboardScreen(
                     )
                     ProductGrid(
                         products = state.visibleProducts,
-                        section = state.section,
                         onProductClick = onProductClick,
                         modifier = Modifier.weight(1f).fillMaxWidth()
                     )
@@ -212,9 +210,9 @@ private fun MarketplaceHeader(
             )
             Spacer(modifier = Modifier.width(8.dp))
             SectionButton(
-                text = MarketplaceSection.VEHICULOS.title,
-                selected = state.section == MarketplaceSection.VEHICULOS,
-                onClick = { onSectionSelected(MarketplaceSection.VEHICULOS) }
+                text = MarketplaceSection.COCHES.title,
+                selected = state.section == MarketplaceSection.COCHES,
+                onClick = { onSectionSelected(MarketplaceSection.COCHES) }
             )
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -488,7 +486,6 @@ private fun FilterCheckRow(
 @Composable
 private fun ProductGrid(
     products: List<CatalogItem>,
-    section: MarketplaceSection,
     onProductClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -514,7 +511,6 @@ private fun ProductGrid(
         items(items = products, key = { it.id }) { product ->
             ProductCard(
                 product = product,
-                section = section,
                 onClick = { onProductClick(product.id) }
             )
         }
@@ -525,14 +521,9 @@ private fun ProductGrid(
 @Composable
 private fun ProductCard(
     product: CatalogItem,
-    section: MarketplaceSection,
     onClick: () -> Unit,
 ) {
-    val image = if (section == MarketplaceSection.FUTBOL) {
-        Res.drawable.nole_azul
-    } else {
-        Res.drawable.nole_blanco
-    }
+    val image = resolveDrawableResource(product.gallery.firstOrNull() ?: product.imageName)
 
 
     Card(
@@ -546,15 +537,16 @@ private fun ProductCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .height(168.dp)
+                .background(Color(0xFFF3F5F8)),
+            contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = painterResource(image),
                 contentDescription = product.title,
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(84.dp),
+                    .fillMaxSize()
+                    .padding(8.dp),
                 contentScale = ContentScale.Fit
             )
         }
