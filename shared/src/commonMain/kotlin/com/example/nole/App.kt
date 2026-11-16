@@ -1,6 +1,5 @@
 package com.example.nole
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +10,7 @@ import com.example.nole.Features.Chats.ChatsScreen
 import com.example.nole.Features.Dashboard.DashboardScreen
 import com.example.nole.Features.Exchange.ExchangeScreen
 import com.example.nole.Features.Login.LoginScreen
+import com.example.nole.ui.NoleTheme
 
 enum class Pantalla {
     DASHBOARD,
@@ -25,7 +25,7 @@ fun App() {
     var pantallaActual by remember { mutableStateOf(Pantalla.DASHBOARD) }
     var productoId by remember { mutableStateOf<String?>(null) }
 
-    MaterialTheme {
+    NoleTheme {
         when (pantallaActual) {
             Pantalla.DASHBOARD -> {
                 DashboardScreen(

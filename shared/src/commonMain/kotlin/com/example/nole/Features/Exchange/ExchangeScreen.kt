@@ -32,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -55,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.model.ChatMessage
 import com.example.nole.model.MarketplaceSection
+import com.example.nole.ui.noleTextFieldColors
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.ic_arrow_left
 import nole.shared.generated.resources.ic_arrow_right
@@ -67,9 +67,6 @@ import nole.shared.generated.resources.nole_rosa
 import org.jetbrains.compose.resources.painterResource
 
 
-private val NolePink = Color(0xFFFF1493)
-private val NoleCard = Color(0xFF101010)
-private val NoleLine = Color(0xFF2A2A2A)
 
 
 @Composable
@@ -94,7 +91,7 @@ fun ExchangeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.background)
             .safeContentPadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -109,7 +106,7 @@ fun ExchangeScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Artículo no disponible",
-                        color = Color.LightGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -126,7 +123,7 @@ fun ExchangeScreen(
                         modifier = Modifier
                             .width(1.dp)
                             .fillMaxHeight()
-                            .background(NoleLine)
+                            .background(MaterialTheme.colorScheme.outline)
                     )
                     ChatPane(
                         sellerUsername = state.sellerUsername,
@@ -149,8 +146,8 @@ fun ExchangeScreen(
         ) { data ->
             Snackbar(
                 snackbarData = data,
-                containerColor = Color(0xFF161616),
-                contentColor = NolePink,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.secondary,
                 shape = RoundedCornerShape(12.dp)
             )
         }
@@ -164,26 +161,26 @@ fun ExchangeScreen(
                 TextButton(onClick = viewModel::onConfirmPurchase) {
                     Text(
                         text = "Aceptar",
-                        color = NolePink,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = viewModel::onDismissPurchase) {
-                    Text(text = "Cancelar", color = Color.White)
+                    Text(text = "Cancelar", color = MaterialTheme.colorScheme.onSurface)
                 }
             },
             title = {
-                Text(text = "Confirmar compra", color = Color.White)
+                Text(text = "Confirmar compra", color = MaterialTheme.colorScheme.onSurface)
             },
             text = {
                 Text(
                     text = "¿Quieres comprar \"${state.title}\" por ${state.priceLabel}?",
-                    color = Color.LightGray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
-            containerColor = Color(0xFF121212)
+            containerColor = MaterialTheme.colorScheme.surface
         )
     }
 }
@@ -204,7 +201,7 @@ private fun ExchangeHeader(
         TextButton(onClick = onBackClick) {
             Text(
                 text = "❮ Volver",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -214,9 +211,9 @@ private fun ExchangeHeader(
             onClick = onNavigateToChats,
             modifier = Modifier.height(32.dp),
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-            border = BorderStroke(1.dp, NolePink),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = NolePink)
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(
                 painter = painterResource(Res.drawable.ic_chat),
@@ -230,7 +227,7 @@ private fun ExchangeHeader(
             Icon(
                 painter = painterResource(Res.drawable.ic_person),
                 contentDescription = "Iniciar sesión",
-                tint = NolePink,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -268,7 +265,7 @@ private fun ProductPane(
                 Icon(
                     painter = painterResource(Res.drawable.ic_arrow_left),
                     contentDescription = "Imagen anterior",
-                    tint = NolePink,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -277,8 +274,8 @@ private fun ProductPane(
                     .weight(1f)
                     .height(180.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(NoleCard)
-                    .border(1.dp, NolePink, RoundedCornerShape(12.dp)),
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -294,7 +291,7 @@ private fun ProductPane(
                 Icon(
                     painter = painterResource(Res.drawable.ic_arrow_right),
                     contentDescription = "Imagen siguiente",
-                    tint = NolePink,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -303,29 +300,29 @@ private fun ProductPane(
 
         Text(
             text = state.title,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = state.priceLabel,
-            color = NolePink,
+            color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = state.location,
-            color = Color.LightGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = state.size,
-            color = Color.LightGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = state.description,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyMedium
         )
 
@@ -333,7 +330,7 @@ private fun ProductPane(
         if (state.isSold) {
             Text(
                 text = "Vendido",
-                color = NolePink,
+                color = MaterialTheme.colorScheme.secondary,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -345,7 +342,7 @@ private fun ProductPane(
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = NolePink,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 )
             ) {
@@ -379,7 +376,7 @@ private fun ChatPane(
     val initial = sellerUsername.firstOrNull()?.uppercase().orEmpty()
 
 
-    Column(modifier = modifier.background(Color.Black)) {
+    Column(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -390,12 +387,12 @@ private fun ChatPane(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(NolePink),
+                    .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = initial,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -403,7 +400,7 @@ private fun ChatPane(
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = sellerUsername,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -412,7 +409,7 @@ private fun ChatPane(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(NolePink.copy(alpha = 0.45f))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.45f))
         )
         Column(
             modifier = Modifier
@@ -437,6 +434,8 @@ private fun ChatPane(
 
 @Composable
 private fun MessageBubble(message: ChatMessage) {
+    val colors = MaterialTheme.colorScheme
+    val ownMessage = !message.fromSeller
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (message.fromSeller) Arrangement.Start else Arrangement.End
@@ -445,17 +444,17 @@ private fun MessageBubble(message: ChatMessage) {
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .clip(RoundedCornerShape(12.dp))
-                .background(if (message.fromSeller) NoleCard else NolePink)
+                .background(if (ownMessage) colors.tertiaryContainer else colors.surface)
                 .border(
                     width = 1.dp,
-                    color = if (message.fromSeller) NoleLine else NolePink,
+                    color = if (ownMessage) colors.tertiary else colors.outline,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
             Text(
                 text = message.text,
-                color = Color.White,
+                color = if (ownMessage) colors.onTertiaryContainer else colors.onSurface,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -471,14 +470,14 @@ private fun MessageComposer(
     onSend: () -> Unit,
 ) {
     val canSend = draft.isNotBlank()
+    val colors = MaterialTheme.colorScheme
 
-
-    Column(modifier = Modifier.fillMaxWidth().background(Color.Black)) {
+    Column(modifier = Modifier.fillMaxWidth().background(colors.surface)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(NoleLine)
+                .background(colors.outline)
         )
         Row(
             modifier = Modifier
@@ -499,14 +498,14 @@ private fun MessageComposer(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(if (canSend) NolePink else Color.DarkGray)
+                    .background(if (canSend) colors.primary else colors.outline)
                     .clickable(enabled = canSend, onClick = onSend),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_send),
                     contentDescription = "Enviar mensaje",
-                    tint = Color.White,
+                    tint = if (canSend) colors.onPrimary else colors.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -516,15 +515,5 @@ private fun MessageComposer(
 
 
 @Composable
-private fun noleFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = NolePink,
-    unfocusedBorderColor = Color.DarkGray,
-    focusedLabelColor = NolePink,
-    unfocusedLabelColor = Color.LightGray,
-    focusedTextColor = Color.White,
-    unfocusedTextColor = Color.White,
-    cursorColor = NolePink,
-    focusedPlaceholderColor = Color.Gray,
-    unfocusedPlaceholderColor = Color.Gray,
-)
+private fun noleFieldColors() = noleTextFieldColors()
 

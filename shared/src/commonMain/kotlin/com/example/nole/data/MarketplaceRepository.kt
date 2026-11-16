@@ -18,8 +18,10 @@ object MarketplaceRepository {
     val items: StateFlow<List<CatalogItem>> = _items.asStateFlow()
 
 
-    private val _messages = MutableStateFlow(seedMessages(_items.value))
+    private val _messages = MutableStateFlow<Map<String, List<ChatMessage>>>(emptyMap())
     val messages: StateFlow<Map<String, List<ChatMessage>>> = _messages.asStateFlow()
+
+    private var messageClock = 0L
 
 
     fun markSold(productId: String): Boolean {
@@ -37,21 +39,18 @@ object MarketplaceRepository {
     fun addMessage(productId: String, text: String, fromSeller: Boolean) {
         val clean = text.trim()
         if (clean.isEmpty()) return
+        val sentAt = ++messageClock
         _messages.update { current ->
             val existing = current[productId].orEmpty()
             val nextId = (existing.maxOfOrNull { it.id } ?: 0) + 1
-            current + (productId to (existing + ChatMessage(nextId, clean, fromSeller)))
-        }
-    }
-
-
-    private fun seedMessages(items: List<CatalogItem>): Map<String, List<ChatMessage>> {
-        return items.associate { item ->
-            item.id to listOf(
-                ChatMessage(
-                    id = 1,
-                    text = "Hola, soy ${item.sellerUsername}. El artículo sigue disponible.",
-                    fromSeller = true,
+            current + (
+                productId to (
+                    existing + ChatMessage(
+                        id = nextId,
+                        text = clean,
+                        fromSeller = fromSeller,
+                        sentAtMillis = sentAt,
+                    )
                 )
             )
         }

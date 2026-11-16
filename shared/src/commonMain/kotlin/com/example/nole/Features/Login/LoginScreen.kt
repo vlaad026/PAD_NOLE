@@ -10,7 +10,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -18,13 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jetbrains.compose.resources.painterResource
-
+import com.example.nole.ui.noleTextFieldColors
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.*
-
-
-val NolePink = Color(0xFFFF1493) // cambiar color;
+import org.jetbrains.compose.resources.painterResource
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,15 +41,8 @@ fun LoginScreen(
     }
 
 
-    val customTextFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = NolePink,
-        unfocusedBorderColor = Color.Gray,
-        focusedLabelColor = NolePink,
-        unfocusedLabelColor = Color.LightGray,
-        focusedTextColor = Color.White,
-        unfocusedTextColor = Color.White,
-        cursorColor = NolePink
-    )
+    val customTextFieldColors = noleTextFieldColors()
+    val colors = MaterialTheme.colorScheme
 
 
     Scaffold(
@@ -64,18 +53,18 @@ fun LoginScreen(
                     TextButton(onClick = onBackClick) {
                         Text(
                             text = "❮ Volver",
-                            color = Color.White,
+                            color = colors.onSurface,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black
+                    containerColor = colors.background
                 )
             )
         },
-        containerColor = Color.Black
+        containerColor = colors.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -96,7 +85,7 @@ fun LoginScreen(
 
             Text(
                 text = if (state.isRegisterMode) "Crear una cuenta" else "Iniciar Sesión",
-                color = Color.White,
+                color = colors.onBackground,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -165,7 +154,7 @@ fun LoginScreen(
 
             Button(
                 onClick = { viewModel.onSubmitClick() },
-                colors = ButtonDefaults.buttonColors(containerColor = NolePink, contentColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -186,7 +175,7 @@ fun LoginScreen(
             TextButton(onClick = { viewModel.onToggleMode() }) {
                 Text(
                     text = if (state.isRegisterMode) "¿Ya tienes cuenta? Inicia sesión aquí" else "¿No tienes cuenta? Regístrate aquí",
-                    color = NolePink,
+                    color = colors.primary,
                     fontWeight = FontWeight.SemiBold
                 )
             }

@@ -37,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,15 +59,9 @@ import nole.shared.generated.resources.ic_person
 import nole.shared.generated.resources.ic_search
 import nole.shared.generated.resources.nole_negro
 import nole.shared.generated.resources.nole_rosa
+import com.example.nole.ui.noleTextFieldColors
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-
-
-val NolePink = Color(0xFFFF1493)
-
-
-private val NoleCard = Color(0xFF101010)
-private val NoleLine = Color(0xFF2A2A2A)
 
 
 @Composable
@@ -84,7 +77,7 @@ fun DashboardScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.background)
             .safeContentPadding()
     ) {
         MarketplaceHeader(
@@ -114,7 +107,7 @@ fun DashboardScreen(
                         modifier = Modifier
                             .width(1.dp)
                             .fillMaxSize()
-                            .background(NoleLine)
+                            .background(MaterialTheme.colorScheme.outline)
                     )
                     ProductGrid(
                         products = state.visibleProducts,
@@ -140,7 +133,7 @@ fun DashboardScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(NoleLine)
+                            .background(MaterialTheme.colorScheme.outline)
                     )
                     ProductGrid(
                         products = state.visibleProducts,
@@ -221,7 +214,7 @@ private fun MarketplaceHeader(
                 Icon(
                     painter = painterResource(Res.drawable.ic_search),
                     contentDescription = null,
-                    tint = Color.Gray
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
             singleLine = true,
@@ -242,9 +235,9 @@ private fun HeaderActionButton(
         onClick = onClick,
         modifier = Modifier.height(32.dp),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-        border = BorderStroke(1.dp, NolePink),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = NolePink)
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
     ) {
         Icon(
             painter = painterResource(icon),
@@ -272,7 +265,7 @@ private fun SectionButton(
             onClick = onClick,
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = NolePink,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
             )
         ) {
@@ -282,8 +275,8 @@ private fun SectionButton(
         OutlinedButton(
             onClick = onClick,
             shape = RoundedCornerShape(20.dp),
-            border = BorderStroke(1.dp, NolePink),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = NolePink)
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
         ) {
             Text(text = text, fontWeight = FontWeight.Bold)
         }
@@ -302,21 +295,21 @@ private fun FilterPanel(
     modifier: Modifier = Modifier,
 ) {
     val checkboxColors = CheckboxDefaults.colors(
-        checkedColor = NolePink,
-        uncheckedColor = Color.Gray,
+        checkedColor = MaterialTheme.colorScheme.primary,
+        uncheckedColor = MaterialTheme.colorScheme.outline,
         checkmarkColor = Color.White
     )
 
 
     Column(
         modifier = modifier
-            .background(Color(0xFF0A0A0A))
+            .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Text(
             text = "Filtros",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -325,14 +318,14 @@ private fun FilterPanel(
             modifier = Modifier
                 .width(36.dp)
                 .height(2.dp)
-                .background(NolePink)
+                .background(MaterialTheme.colorScheme.primary)
         )
 
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Categorías",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
         state.section.categories.forEach { category ->
@@ -348,7 +341,7 @@ private fun FilterPanel(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Estado",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
         ProductConditions.forEach { condition ->
@@ -364,7 +357,7 @@ private fun FilterPanel(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Precio",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -397,7 +390,7 @@ private fun FilterPanel(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = error,
-                color = Color(0xFFFF8A80),
+                color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -411,7 +404,7 @@ private fun FilterPanel(
                 .height(46.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = NolePink,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
             )
         ) {
@@ -439,7 +432,7 @@ private fun FilterCheckRow(
         )
         Text(
             text = label,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -457,7 +450,7 @@ private fun ProductGrid(
         Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(
                 text = "No hay artículos con esos filtros",
-                color = Color.LightGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -500,15 +493,15 @@ private fun ProductCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = NoleCard),
-        border = BorderStroke(width = 1.dp, color = Color(0xFF3A3A3A)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
-                .background(Color(0xFF161616))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Image(
                 painter = painterResource(image),
@@ -522,7 +515,7 @@ private fun ProductCard(
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = product.title,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 2,
@@ -532,7 +525,7 @@ private fun ProductCard(
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = product.priceLabel,
-                color = NolePink,
+                color = MaterialTheme.colorScheme.secondary,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -542,14 +535,4 @@ private fun ProductCard(
 
 
 @Composable
-private fun noleFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = NolePink,
-    unfocusedBorderColor = Color.DarkGray,
-    focusedLabelColor = NolePink,
-    unfocusedLabelColor = Color.LightGray,
-    focusedTextColor = Color.White,
-    unfocusedTextColor = Color.White,
-    cursorColor = NolePink,
-    focusedPlaceholderColor = Color.Gray,
-    unfocusedPlaceholderColor = Color.Gray,
-)
+private fun noleFieldColors() = noleTextFieldColors()

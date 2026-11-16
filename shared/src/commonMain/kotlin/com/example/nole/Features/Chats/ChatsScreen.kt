@@ -1,6 +1,5 @@
 package com.example.nole.Features.Chats
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,11 +37,6 @@ import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_home
 import org.jetbrains.compose.resources.painterResource
 
-
-private val NolePink = Color(0xFFFF1493)
-private val NoleLine = Color(0xFF2A2A2A)
-
-
 @Composable
 fun ChatsScreen(
     viewModel: ChatsViewModel = viewModel { ChatsViewModel() },
@@ -51,12 +45,12 @@ fun ChatsScreen(
     onChatClick: (String) -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val colors = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(colors.background)
             .safeContentPadding()
     ) {
         Row(
@@ -68,40 +62,62 @@ fun ChatsScreen(
             Icon(
                 painter = painterResource(Res.drawable.ic_chat),
                 contentDescription = null,
-                tint = NolePink,
+                tint = colors.primary,
                 modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = "Bandeja de entrada",
-                color = Color.White,
+                color = colors.onBackground,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
         }
 
-
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            itemsIndexed(
-                items = state.conversations,
-                key = { _, conversation -> conversation.productId }
-            ) { index, conversation ->
-                ConversationRow(
-                    conversation = conversation,
-                    onClick = { onChatClick(conversation.productId) }
-                )
-                if (index < state.conversations.lastIndex) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 76.dp)
-                            .height(1.dp)
-                            .background(NoleLine)
+        if (state.conversations.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_chat),
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(42.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Aún no tienes conversaciones activas",
+                        color = colors.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                itemsIndexed(
+                    items = state.conversations,
+                    key = { _, conversation -> conversation.productId }
+                ) { index, conversation ->
+                    ConversationRow(
+                        conversation = conversation,
+                        onClick = { onChatClick(conversation.productId) }
+                    )
+                    if (index < state.conversations.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 76.dp)
+                                .height(1.dp)
+                                .background(colors.outline)
+                        )
+                    }
+                }
+            }
         }
-
 
         ChatsBottomBar(
             onBackClick = onBackClick,
@@ -110,19 +126,18 @@ fun ChatsScreen(
     }
 }
 
-
 @Composable
 private fun ConversationRow(
     conversation: ChatConversation,
     onClick: () -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     val initial = conversation.sellerUsername.firstOrNull()?.uppercase().orEmpty()
-
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Black)
+            .background(colors.surface)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -131,38 +146,48 @@ private fun ConversationRow(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(NolePink),
+                .background(colors.primary),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = initial,
-                color = Color.White,
+                color = colors.onPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = conversation.sellerUsername,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleMedium
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = conversation.sellerUsername,
+                color = colors.onSurface,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = conversation.lastMessage,
+                color = colors.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
-
 
 @Composable
 private fun ChatsBottomBar(
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().background(Color(0xFF0D0D0D))) {
+    val colors = MaterialTheme.colorScheme
+
+    Column(modifier = Modifier.fillMaxWidth().background(colors.surface)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(NolePink.copy(alpha = 0.45f))
+                .background(colors.outline)
         )
         Row(
             modifier = Modifier
@@ -174,7 +199,7 @@ private fun ChatsBottomBar(
             TextButton(onClick = onBackClick) {
                 Text(
                     text = "❮ Volver",
-                    color = Color.White,
+                    color = colors.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -183,13 +208,13 @@ private fun ChatsBottomBar(
                 Icon(
                     painter = painterResource(Res.drawable.ic_home),
                     contentDescription = "Inicio",
-                    tint = NolePink,
+                    tint = colors.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Inicio",
-                    color = NolePink,
+                    color = colors.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )

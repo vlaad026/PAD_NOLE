@@ -40,6 +40,7 @@ data class ChatMessage(
     val id: Int,
     val text: String,
     val fromSeller: Boolean,
+    val sentAtMillis: Long = 0L,
 )
 
 

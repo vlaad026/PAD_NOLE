@@ -1,32 +1,37 @@
 package com.example.nole.Features.Chats
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nole.data.MarketplaceRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-
 
 class ChatsViewModel : ViewModel() {
 
-
-    val uiState: StateFlow<ChatsUiState> = MarketplaceRepository.items
-        .map { items ->
-            ChatsUiState(
-                conversations = items.map { item ->
-                    ChatConversation(
-                        productId = item.id,
-                        sellerUsername = item.sellerUsername,
-                    )
-                }
-            )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = ChatsUiState(),
-        )
+    val uiState: StateFlow<ChatsUiState> = combine(
+        MarketplaceRepository.items,
+        MarketplaceRepository.messages,
+    ) { items, messages ->
+        val conversations = items.mapNotNull { item ->
+            val thread = messages[item.id].orEmpty()
+            if (thread.isEmpty()) {
+                null
+            } else {
+                val last = thread.maxBy { it.sentAtMillis }
+                ChatConversation(
+                    productId = item.id,
+                    sellerUsername = item.sellerUsername,
+                    lastMessage = last.text,
+                    lastActivityAt = last.sentAtMillis,
+                )
+            }
+        }.sortedByDescending { it.lastActivityAt }
+        ChatsUiState(conversations = conversations)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = ChatsUiState(),
+    )
 }
