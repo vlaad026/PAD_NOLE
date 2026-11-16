@@ -83,7 +83,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(Res.drawable.nole_negro),
+                painter = painterResource(Res.drawable.nole_blanco),
                 contentDescription = "Logo NOLE",
                 modifier = Modifier
                     .size(150.dp)

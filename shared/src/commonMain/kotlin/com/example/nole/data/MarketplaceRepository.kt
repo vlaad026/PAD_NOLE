@@ -353,7 +353,7 @@ object MarketplaceRepository {
         condition = condition,
         section = section.name,
         priceEuros = priceEuros,
-        imageName = if (section == MarketplaceSection.FUTBOL) "nole_rosa" else "nole_negro",
+        imageName = if (section == MarketplaceSection.FUTBOL) "nole_azul" else "nole_blanco",
         isSold = isSold,
     )
 

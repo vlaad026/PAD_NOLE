@@ -61,8 +61,8 @@ import nole.shared.generated.resources.ic_bag
 import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_person
 import nole.shared.generated.resources.ic_send
-import nole.shared.generated.resources.nole_negro
-import nole.shared.generated.resources.nole_rosa
+import nole.shared.generated.resources.nole_azul
+import nole.shared.generated.resources.nole_blanco
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -243,10 +243,10 @@ private fun ProductPane(
     modifier: Modifier = Modifier,
 ) {
     val productImage = when {
-        state.imageIndex % 2 == 0 && state.section == MarketplaceSection.VEHICULOS -> Res.drawable.nole_negro
-        state.imageIndex % 2 == 0 -> Res.drawable.nole_rosa
-        state.section == MarketplaceSection.VEHICULOS -> Res.drawable.nole_rosa
-        else -> Res.drawable.nole_negro
+        state.imageIndex % 2 == 0 && state.section == MarketplaceSection.VEHICULOS -> Res.drawable.nole_blanco
+        state.imageIndex % 2 == 0 -> Res.drawable.nole_azul
+        state.section == MarketplaceSection.VEHICULOS -> Res.drawable.nole_azul
+        else -> Res.drawable.nole_blanco
     }
 
 

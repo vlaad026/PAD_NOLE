@@ -66,8 +66,8 @@ import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_person
 import nole.shared.generated.resources.ic_search
-import nole.shared.generated.resources.nole_negro
-import nole.shared.generated.resources.nole_rosa
+import nole.shared.generated.resources.nole_azul
+import nole.shared.generated.resources.nole_blanco
 import com.example.nole.ui.noleTextFieldColors
 import org.jetbrains.compose.resources.painterResource
 
@@ -200,7 +200,7 @@ private fun MarketplaceHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(Res.drawable.nole_rosa),
+                painter = painterResource(Res.drawable.nole_azul),
                 contentDescription = "NOLE",
                 modifier = Modifier.size(36.dp)
             )
@@ -529,9 +529,9 @@ private fun ProductCard(
     onClick: () -> Unit,
 ) {
     val image = if (section == MarketplaceSection.FUTBOL) {
-        Res.drawable.nole_rosa
+        Res.drawable.nole_azul
     } else {
-        Res.drawable.nole_negro
+        Res.drawable.nole_blanco
     }
 
 
