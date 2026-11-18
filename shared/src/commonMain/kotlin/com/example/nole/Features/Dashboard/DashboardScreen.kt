@@ -1,4 +1,4 @@
-package com.example.nole.Features.Dashboard
+package com.example.nole.features.dashboard
 
 
 import androidx.compose.foundation.BorderStroke

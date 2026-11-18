@@ -1,4 +1,4 @@
-package com.example.nole.Features.Chats
+package com.example.nole.features.chats
 
 data class ChatConversation(
     val productId: String,

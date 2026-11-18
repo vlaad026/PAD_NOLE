@@ -1,4 +1,4 @@
-package com.example.nole.Features.Chats
+package com.example.nole.features.chats
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,4 +1,4 @@
-package com.example.nole.Features.Exchange
+package com.example.nole.features.exchange
 
 
 import androidx.compose.foundation.BorderStroke

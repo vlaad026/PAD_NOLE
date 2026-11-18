@@ -9,10 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.nole.Features.Chats.ChatsScreen
-import com.example.nole.Features.Dashboard.DashboardScreen
-import com.example.nole.Features.Exchange.ExchangeScreen
-import com.example.nole.Features.Login.LoginScreen
+import com.example.nole.features.chats.ChatsScreen
+import com.example.nole.features.dashboard.DashboardScreen
+import com.example.nole.features.exchange.ExchangeScreen
+import com.example.nole.features.login.LoginScreen
 import com.example.nole.data.MarketplaceRepository
 import com.example.nole.core.ui.NoleTheme
 
