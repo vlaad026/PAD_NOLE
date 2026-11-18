@@ -12,7 +12,7 @@ class ChatsViewModel(
     private val repository: MarketplaceRepository,
 ) : ViewModel() {
 
-    val uiState: StateFlow<ChatsUiState> = combine(
+    val state: StateFlow<ChatsUiState> = combine(
         repository.items,
         repository.messages,
         repository.currentUser,
@@ -46,9 +46,9 @@ class ChatsViewModel(
 
     fun onAction(action: ChatsAction) {
         when (action) {
-            ChatsAction.BackClick,
-            ChatsAction.HomeClick,
-            is ChatsAction.ChatClick -> Unit
+            ChatsAction.OnBackClick,
+            ChatsAction.OnHomeClick,
+            is ChatsAction.OnChatClick -> Unit
         }
     }
 }

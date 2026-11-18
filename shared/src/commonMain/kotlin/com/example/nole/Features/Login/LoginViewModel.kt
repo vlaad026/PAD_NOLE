@@ -19,41 +19,40 @@ class LoginViewModel(
 
 
     private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+    val state: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-
-    fun onEmailChanged(newEmail: String) {
-        _uiState.update { it.copy(email = newEmail, errorMessage = null) }
-    }
-
-
-    fun onPasswordChanged(newPassword: String) {
-        _uiState.update { it.copy(password = newPassword, errorMessage = null) }
-    }
-
-
-    fun onConfirmPasswordChanged(newConfirmPassword: String) {
-        _uiState.update { it.copy(confirmPassword = newConfirmPassword, errorMessage = null) }
-    }
-
-
-    fun resetToLogin() {
-        _uiState.value = LoginUiState()
-    }
-
-
-    fun onToggleMode() {
-        _uiState.update {
-            it.copy(
-                isRegisterMode = !it.isRegisterMode,
-                errorMessage = null,
-                confirmPassword = ""
-            )
+    fun onAction(action: LoginAction) {
+        when (action) {
+            LoginAction.OnBackClick -> Unit
+            is LoginAction.EmailChanged -> {
+                _uiState.update { it.copy(email = action.email, errorMessage = null) }
+            }
+            is LoginAction.PasswordChanged -> {
+                _uiState.update { it.copy(password = action.password, errorMessage = null) }
+            }
+            is LoginAction.ConfirmPasswordChanged -> {
+                _uiState.update { it.copy(confirmPassword = action.confirmPassword, errorMessage = null) }
+            }
+            LoginAction.ToggleMode -> {
+                _uiState.update {
+                    it.copy(
+                        isRegisterMode = !it.isRegisterMode,
+                        errorMessage = null,
+                        confirmPassword = ""
+                    )
+                }
+            }
+            LoginAction.Submit -> submit()
+            LoginAction.SuccessHandled -> {
+                _uiState.update { it.copy(isSuccess = false) }
+            }
+            LoginAction.ResetToLogin -> {
+                _uiState.value = LoginUiState()
+            }
         }
     }
 
-
-    fun onSubmitClick() {
+    private fun submit() {
         val state = _uiState.value
         if (state.isLoading) return
 
@@ -72,25 +71,6 @@ class LoginViewModel(
                     isSuccess = error == null,
                 )
             }
-        }
-    }
-
-
-    // La pantalla lo llama cuando ya ha navegado, para que el éxito no se quede guardado;
-
-    fun onSuccessHandled() {
-        _uiState.update { it.copy(isSuccess = false) }
-    }
-
-    fun onAction(action: LoginAction) {
-        when (action) {
-            is LoginAction.EmailChanged -> onEmailChanged(action.email)
-            is LoginAction.PasswordChanged -> onPasswordChanged(action.password)
-            is LoginAction.ConfirmPasswordChanged -> onConfirmPasswordChanged(action.confirmPassword)
-            LoginAction.ToggleMode -> onToggleMode()
-            LoginAction.Submit -> onSubmitClick()
-            LoginAction.SuccessHandled -> onSuccessHandled()
-            LoginAction.ResetToLogin -> resetToLogin()
         }
     }
 }

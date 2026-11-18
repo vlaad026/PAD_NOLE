@@ -11,4 +11,7 @@ sealed interface DashboardAction {
     data class PriceToChanged(val value: String) : DashboardAction
     data object ApplyFilters : DashboardAction
     data object Logout : DashboardAction
+    data object OnNavigateToLogin : DashboardAction
+    data object OnNavigateToChats : DashboardAction
+    data class OnProductClick(val productId: String) : DashboardAction
 }

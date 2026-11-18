@@ -23,7 +23,7 @@ class DashboardViewModel(
     private val filters = MutableStateFlow(DashboardUiState())
 
 
-    val uiState: StateFlow<DashboardUiState> = combine(
+    val state: StateFlow<DashboardUiState> = combine(
         filters,
         repository.items,
         repository.currentUser,
@@ -47,94 +47,72 @@ class DashboardViewModel(
     )
 
 
-    fun onSectionSelected(section: MarketplaceSection) {
-        filters.update { state ->
-            if (state.section == section) return@update state
-            state.copy(
-                section = section,
-                searchQuery = "",
-                selectedCategories = emptySet(),
-                selectedConditions = emptySet(),
-                priceFromInput = "",
-                priceToInput = "",
-                appliedPriceFrom = null,
-                appliedPriceTo = null,
-                filterError = null,
-            )
-        }
-    }
-
-
-    fun onSearchChanged(query: String) {
-        filters.update { it.copy(searchQuery = query) }
-    }
-
-
-    fun onCategoryChecked(category: String, checked: Boolean) {
-        filters.update { state ->
-            val updated = state.selectedCategories.toMutableSet().apply {
-                if (checked) add(category) else remove(category)
-            }
-            state.copy(selectedCategories = updated)
-        }
-    }
-
-
-    fun onConditionChecked(condition: String, checked: Boolean) {
-        filters.update { state ->
-            val updated = state.selectedConditions.toMutableSet().apply {
-                if (checked) add(condition) else remove(condition)
-            }
-            state.copy(selectedConditions = updated)
-        }
-    }
-
-
-    fun onPriceFromChanged(value: String) {
-        filters.update {
-            it.copy(priceFromInput = value.filter(Char::isDigit).take(7), filterError = null)
-        }
-    }
-
-
-    fun onPriceToChanged(value: String) {
-        filters.update {
-            it.copy(priceToInput = value.filter(Char::isDigit).take(7), filterError = null)
-        }
-    }
-
-
-    fun logout() {
-        repository.logout()
-    }
-
-
     fun onAction(action: DashboardAction) {
         when (action) {
-            is DashboardAction.SectionSelected -> onSectionSelected(action.section)
-            is DashboardAction.SearchChanged -> onSearchChanged(action.query)
-            is DashboardAction.CategoryChecked -> onCategoryChecked(action.category, action.checked)
-            is DashboardAction.ConditionChecked -> onConditionChecked(action.condition, action.checked)
-            is DashboardAction.PriceFromChanged -> onPriceFromChanged(action.value)
-            is DashboardAction.PriceToChanged -> onPriceToChanged(action.value)
-            DashboardAction.ApplyFilters -> onApplyFilters()
-            DashboardAction.Logout -> logout()
-        }
-    }
-
-    fun onApplyFilters() {
-        filters.update { state ->
-            val from = state.priceFromInput.toIntOrNull()
-            val to = state.priceToInput.toIntOrNull()
-            if (from != null && to != null && from > to) {
-                state.copy(filterError = "El precio desde no puede ser mayor que hasta")
-            } else {
-                state.copy(
-                    appliedPriceFrom = from,
-                    appliedPriceTo = to,
-                    filterError = null,
-                )
+            is DashboardAction.SectionSelected -> {
+                filters.update { state ->
+                    if (state.section == action.section) return@update state
+                    state.copy(
+                        section = action.section,
+                        searchQuery = "",
+                        selectedCategories = emptySet(),
+                        selectedConditions = emptySet(),
+                        priceFromInput = "",
+                        priceToInput = "",
+                        appliedPriceFrom = null,
+                        appliedPriceTo = null,
+                        filterError = null,
+                    )
+                }
             }
+            is DashboardAction.SearchChanged -> {
+                filters.update { it.copy(searchQuery = action.query) }
+            }
+            is DashboardAction.CategoryChecked -> {
+                filters.update { state ->
+                    val updated = state.selectedCategories.toMutableSet().apply {
+                        if (action.checked) add(action.category) else remove(action.category)
+                    }
+                    state.copy(selectedCategories = updated)
+                }
+            }
+            is DashboardAction.ConditionChecked -> {
+                filters.update { state ->
+                    val updated = state.selectedConditions.toMutableSet().apply {
+                        if (action.checked) add(action.condition) else remove(action.condition)
+                    }
+                    state.copy(selectedConditions = updated)
+                }
+            }
+            is DashboardAction.PriceFromChanged -> {
+                filters.update {
+                    it.copy(priceFromInput = action.value.filter(Char::isDigit).take(7), filterError = null)
+                }
+            }
+            is DashboardAction.PriceToChanged -> {
+                filters.update {
+                    it.copy(priceToInput = action.value.filter(Char::isDigit).take(7), filterError = null)
+                }
+            }
+            DashboardAction.ApplyFilters -> {
+                filters.update { state ->
+                    val from = state.priceFromInput.toIntOrNull()
+                    val to = state.priceToInput.toIntOrNull()
+                    if (from != null && to != null && from > to) {
+                        state.copy(filterError = "El precio desde no puede ser mayor que hasta")
+                    } else {
+                        state.copy(
+                            appliedPriceFrom = from,
+                            appliedPriceTo = to,
+                            filterError = null,
+                        )
+                    }
+                }
+            }
+            DashboardAction.Logout -> repository.logout()
+            DashboardAction.OnNavigateToLogin,
+            DashboardAction.OnNavigateToChats,
+            is DashboardAction.OnProductClick -> Unit
         }
     }
 }

@@ -73,21 +73,37 @@ import org.jetbrains.compose.resources.painterResource
 
 
 @Composable
-fun ExchangeScreen(
-    productId: String,
+fun ExchangeScreenRoot(
     viewModel: ExchangeViewModel,
     onBackClick: () -> Unit = {},
     onNavigateToChats: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    ExchangeScreen(
+        state = state,
+        onAction = { action ->
+            when (action) {
+                ExchangeAction.OnBackClick -> onBackClick()
+                ExchangeAction.OnNavigateToChats -> onNavigateToChats()
+                ExchangeAction.OnNavigateToLogin -> onNavigateToLogin()
+                else -> viewModel.onAction(action)
+            }
+        },
+    )
+}
 
+@Composable
+fun ExchangeScreen(
+    state: ExchangeUiState,
+    onAction: (ExchangeAction) -> Unit,
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.purchaseMessage) {
         val message = state.purchaseMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
-        viewModel.onPurchaseMessageConsumed()
+        onAction(ExchangeAction.PurchaseMessageConsumed)
     }
 
 
@@ -99,9 +115,9 @@ fun ExchangeScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ExchangeHeader(
-                onBackClick = onBackClick,
-                onNavigateToChats = onNavigateToChats,
-                onNavigateToLogin = onNavigateToLogin,
+                onBackClick = { onAction(ExchangeAction.OnBackClick) },
+                onNavigateToChats = { onAction(ExchangeAction.OnNavigateToChats) },
+                onNavigateToLogin = { onAction(ExchangeAction.OnNavigateToLogin) },
             )
 
 
@@ -117,10 +133,10 @@ fun ExchangeScreen(
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     ProductPane(
                         state = state,
-                        onPreviousImage = viewModel::onPreviousImage,
-                        onNextImage = viewModel::onNextImage,
-                        onSelectImage = viewModel::onSelectImage,
-                        onBuyClick = viewModel::onBuyClick,
+                        onPreviousImage = { onAction(ExchangeAction.PreviousImage) },
+                        onNextImage = { onAction(ExchangeAction.NextImage) },
+                        onSelectImage = { onAction(ExchangeAction.SelectImage(it)) },
+                        onBuyClick = { onAction(ExchangeAction.BuyClick) },
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     Box(
@@ -133,8 +149,8 @@ fun ExchangeScreen(
                         sellerUsername = state.sellerUsername,
                         messages = state.messages,
                         draft = state.draftMessage,
-                        onDraftChanged = viewModel::onDraftChanged,
-                        onSend = viewModel::onSendMessage,
+                        onDraftChanged = { onAction(ExchangeAction.DraftChanged(it)) },
+                        onSend = { onAction(ExchangeAction.SendMessage) },
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                 }
@@ -160,9 +176,9 @@ fun ExchangeScreen(
 
     if (state.showPurchaseDialog) {
         AlertDialog(
-            onDismissRequest = viewModel::onDismissPurchase,
+            onDismissRequest = { onAction(ExchangeAction.DismissPurchase) },
             confirmButton = {
-                TextButton(onClick = viewModel::onConfirmPurchase) {
+                TextButton(onClick = { onAction(ExchangeAction.ConfirmPurchase) }) {
                     Text(
                         text = "Aceptar",
                         color = MaterialTheme.colorScheme.primary,
@@ -171,7 +187,7 @@ fun ExchangeScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = viewModel::onDismissPurchase) {
+                TextButton(onClick = { onAction(ExchangeAction.DismissPurchase) }) {
                     Text(text = "Cancelar", color = MaterialTheme.colorScheme.onSurface)
                 }
             },

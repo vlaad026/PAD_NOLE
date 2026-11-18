@@ -38,13 +38,31 @@ import nole.shared.generated.resources.ic_home
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun ChatsScreen(
+fun ChatsScreenRoot(
     viewModel: ChatsViewModel,
     onBackClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onChatClick: (String) -> Unit = {},
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    ChatsScreen(
+        state = state,
+        onAction = { action ->
+            when (action) {
+                ChatsAction.OnBackClick -> onBackClick()
+                ChatsAction.OnHomeClick -> onHomeClick()
+                is ChatsAction.OnChatClick -> onChatClick(action.productId)
+                else -> viewModel.onAction(action)
+            }
+        },
+    )
+}
+
+@Composable
+fun ChatsScreen(
+    state: ChatsUiState,
+    onAction: (ChatsAction) -> Unit,
+) {
     val colors = MaterialTheme.colorScheme
 
     Column(
@@ -104,7 +122,7 @@ fun ChatsScreen(
                 ) { index, conversation ->
                     ConversationRow(
                         conversation = conversation,
-                        onClick = { onChatClick(conversation.productId) }
+                        onClick = { onAction(ChatsAction.OnChatClick(conversation.productId)) }
                     )
                     if (index < state.conversations.lastIndex) {
                         Box(
@@ -120,8 +138,8 @@ fun ChatsScreen(
         }
 
         ChatsBottomBar(
-            onBackClick = onBackClick,
-            onHomeClick = onHomeClick
+            onBackClick = { onAction(ChatsAction.OnBackClick) },
+            onHomeClick = { onAction(ChatsAction.OnHomeClick) },
         )
     }
 }

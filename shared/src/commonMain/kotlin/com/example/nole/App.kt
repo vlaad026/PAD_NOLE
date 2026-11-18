@@ -16,13 +16,13 @@ import androidx.navigation.toRoute
 import com.example.nole.core.ui.NoleTheme
 import com.example.nole.di.AppContainer
 import com.example.nole.di.DefaultAppContainer
-import com.example.nole.features.chats.ChatsScreen
+import com.example.nole.features.chats.ChatsScreenRoot
 import com.example.nole.features.chats.ChatsViewModel
-import com.example.nole.features.dashboard.DashboardScreen
+import com.example.nole.features.dashboard.DashboardScreenRoot
 import com.example.nole.features.dashboard.DashboardViewModel
-import com.example.nole.features.exchange.ExchangeScreen
+import com.example.nole.features.exchange.ExchangeScreenRoot
 import com.example.nole.features.exchange.ExchangeViewModel
-import com.example.nole.features.login.LoginScreen
+import com.example.nole.features.login.LoginScreenRoot
 import com.example.nole.features.login.LoginViewModel
 
 @Composable
@@ -53,7 +53,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
             startDestination = Route.Login,
         ) {
             composable<Route.Login> {
-                LoginScreen(
+                LoginScreenRoot(
                     viewModel = viewModel {
                         LoginViewModel(
                             appContainer.loginUseCase,
@@ -70,7 +70,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
                 )
             }
             composable<Route.Dashboard> {
-                DashboardScreen(
+                DashboardScreenRoot(
                     viewModel = viewModel {
                         DashboardViewModel(
                             appContainer.marketplaceRepository,
@@ -90,8 +90,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
             }
             composable<Route.Exchange> { backStackEntry ->
                 val route = backStackEntry.toRoute<Route.Exchange>()
-                ExchangeScreen(
-                    productId = route.productId,
+                ExchangeScreenRoot(
                     viewModel = viewModel {
                         ExchangeViewModel(route.productId, appContainer.marketplaceRepository)
                     },
@@ -107,7 +106,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
                 )
             }
             composable<Route.Chats> {
-                ChatsScreen(
+                ChatsScreenRoot(
                     viewModel = viewModel { ChatsViewModel(appContainer.marketplaceRepository) },
                     onBackClick = {
                         navController.popBackStack()

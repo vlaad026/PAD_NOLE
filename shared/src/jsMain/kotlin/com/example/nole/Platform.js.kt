@@ -1,5 +1,7 @@
 package com.example.nole
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import web.navigator.navigator
 
 class JsPlatform: Platform {
@@ -12,3 +14,5 @@ class JsPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = JsPlatform()
+
+internal actual val ioDispatcher: CoroutineDispatcher = Dispatchers.Default

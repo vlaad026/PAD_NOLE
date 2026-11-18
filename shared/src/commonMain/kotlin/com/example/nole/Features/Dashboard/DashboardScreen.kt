@@ -72,13 +72,31 @@ import org.jetbrains.compose.resources.painterResource
 
 
 @Composable
-fun DashboardScreen(
+fun DashboardScreenRoot(
     viewModel: DashboardViewModel,
     onNavigateToLogin: () -> Unit = {},
     onNavigateToChats: () -> Unit = {},
     onProductClick: (String) -> Unit = {},
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    DashboardScreen(
+        state = state,
+        onAction = { action ->
+            when (action) {
+                DashboardAction.OnNavigateToLogin -> onNavigateToLogin()
+                DashboardAction.OnNavigateToChats -> onNavigateToChats()
+                is DashboardAction.OnProductClick -> onProductClick(action.productId)
+                else -> viewModel.onAction(action)
+            }
+        },
+    )
+}
+
+@Composable
+fun DashboardScreen(
+    state: DashboardUiState,
+    onAction: (DashboardAction) -> Unit,
+) {
     var confirmLogout by remember { mutableStateOf(false) }
 
     if (confirmLogout) {
@@ -90,7 +108,7 @@ fun DashboardScreen(
                 TextButton(
                     onClick = {
                         confirmLogout = false
-                        viewModel.logout()
+                        onAction(DashboardAction.Logout)
                     },
                 ) {
                     Text("Cerrar sesión", color = MaterialTheme.colorScheme.error)
@@ -112,10 +130,10 @@ fun DashboardScreen(
     ) {
         MarketplaceHeader(
             state = state,
-            onSectionSelected = viewModel::onSectionSelected,
-            onSearchChanged = viewModel::onSearchChanged,
-            onNavigateToChats = onNavigateToChats,
-            onNavigateToLogin = onNavigateToLogin,
+            onSectionSelected = { onAction(DashboardAction.SectionSelected(it)) },
+            onSearchChanged = { onAction(DashboardAction.SearchChanged(it)) },
+            onNavigateToChats = { onAction(DashboardAction.OnNavigateToChats) },
+            onNavigateToLogin = { onAction(DashboardAction.OnNavigateToLogin) },
             onLogoutClick = { confirmLogout = true },
         )
 
@@ -125,11 +143,15 @@ fun DashboardScreen(
                 Row(modifier = Modifier.fillMaxSize()) {
                     FilterPanel(
                         state = state,
-                        onCategoryChecked = viewModel::onCategoryChecked,
-                        onConditionChecked = viewModel::onConditionChecked,
-                        onPriceFromChanged = viewModel::onPriceFromChanged,
-                        onPriceToChanged = viewModel::onPriceToChanged,
-                        onApplyFilters = viewModel::onApplyFilters,
+                        onCategoryChecked = { category, checked ->
+                            onAction(DashboardAction.CategoryChecked(category, checked))
+                        },
+                        onConditionChecked = { condition, checked ->
+                            onAction(DashboardAction.ConditionChecked(condition, checked))
+                        },
+                        onPriceFromChanged = { onAction(DashboardAction.PriceFromChanged(it)) },
+                        onPriceToChanged = { onAction(DashboardAction.PriceToChanged(it)) },
+                        onApplyFilters = { onAction(DashboardAction.ApplyFilters) },
                         modifier = Modifier
                             .width(280.dp)
                             .fillMaxSize()
@@ -142,7 +164,7 @@ fun DashboardScreen(
                     )
                     ProductGrid(
                         products = state.visibleProducts,
-                        onProductClick = onProductClick,
+                        onProductClick = { onAction(DashboardAction.OnProductClick(it)) },
                         modifier = Modifier.weight(1f).fillMaxSize()
                     )
                 }
@@ -150,11 +172,15 @@ fun DashboardScreen(
                 Column(modifier = Modifier.fillMaxSize()) {
                     FilterPanel(
                         state = state,
-                        onCategoryChecked = viewModel::onCategoryChecked,
-                        onConditionChecked = viewModel::onConditionChecked,
-                        onPriceFromChanged = viewModel::onPriceFromChanged,
-                        onPriceToChanged = viewModel::onPriceToChanged,
-                        onApplyFilters = viewModel::onApplyFilters,
+                        onCategoryChecked = { category, checked ->
+                            onAction(DashboardAction.CategoryChecked(category, checked))
+                        },
+                        onConditionChecked = { condition, checked ->
+                            onAction(DashboardAction.ConditionChecked(condition, checked))
+                        },
+                        onPriceFromChanged = { onAction(DashboardAction.PriceFromChanged(it)) },
+                        onPriceToChanged = { onAction(DashboardAction.PriceToChanged(it)) },
+                        onApplyFilters = { onAction(DashboardAction.ApplyFilters) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = 260.dp)
@@ -167,7 +193,7 @@ fun DashboardScreen(
                     )
                     ProductGrid(
                         products = state.visibleProducts,
-                        onProductClick = onProductClick,
+                        onProductClick = { onAction(DashboardAction.OnProductClick(it)) },
                         modifier = Modifier.weight(1f).fillMaxWidth()
                     )
                 }

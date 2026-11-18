@@ -1,6 +1,7 @@
 package com.example.nole.features.login
 
 sealed interface LoginAction {
+    data object OnBackClick : LoginAction
     data class EmailChanged(val email: String) : LoginAction
     data class PasswordChanged(val password: String) : LoginAction
     data class ConfirmPasswordChanged(val confirmPassword: String) : LoginAction

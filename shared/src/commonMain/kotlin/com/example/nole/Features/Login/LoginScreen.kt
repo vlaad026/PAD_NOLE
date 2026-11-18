@@ -24,28 +24,45 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun LoginScreenRoot(
     viewModel: LoginViewModel,
     authKey: String = "login",
     onBackClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {},
     showBack: Boolean = true,
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(authKey) {
-        viewModel.resetToLogin()
+        viewModel.onAction(LoginAction.ResetToLogin)
     }
-
 
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
             onLoginSuccess()
-            viewModel.onSuccessHandled()
+            viewModel.onAction(LoginAction.SuccessHandled)
         }
     }
 
+    LoginScreen(
+        state = state,
+        showBack = showBack,
+        onAction = { action ->
+            when (action) {
+                LoginAction.OnBackClick -> onBackClick()
+                else -> viewModel.onAction(action)
+            }
+        },
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginScreen(
+    state: LoginUiState,
+    onAction: (LoginAction) -> Unit,
+    showBack: Boolean = true,
+) {
     val customTextFieldColors = noleTextFieldColors()
     val colors = MaterialTheme.colorScheme
 
@@ -56,7 +73,7 @@ fun LoginScreen(
                 title = { },
                 navigationIcon = {
                     if (showBack) {
-                        TextButton(onClick = onBackClick) {
+                        TextButton(onClick = { onAction(LoginAction.OnBackClick) }) {
                             Text(
                                 text = "❮ Volver",
                                 color = colors.onSurface,
@@ -103,7 +120,7 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = state.email,
-                onValueChange = { viewModel.onEmailChanged(it) },
+                onValueChange = { onAction(LoginAction.EmailChanged(it)) },
                 label = { Text("Correo Electrónico") },
                 singleLine = true,
                 colors = customTextFieldColors,
@@ -117,7 +134,7 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = state.password,
-                onValueChange = { viewModel.onPasswordChanged(it) },
+                onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
                 label = { Text("Contraseña") },
                 singleLine = true,
                 colors = customTextFieldColors,
@@ -133,7 +150,7 @@ fun LoginScreen(
 
                 OutlinedTextField(
                     value = state.confirmPassword,
-                    onValueChange = { viewModel.onConfirmPasswordChanged(it) },
+                    onValueChange = { onAction(LoginAction.ConfirmPasswordChanged(it)) },
                     label = { Text("Confirmar Contraseña") },
                     singleLine = true,
                     colors = customTextFieldColors,
@@ -160,7 +177,7 @@ fun LoginScreen(
             // Botón Principal;
 
             Button(
-                onClick = { viewModel.onSubmitClick() },
+                onClick = { onAction(LoginAction.Submit) },
                 colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -179,7 +196,7 @@ fun LoginScreen(
 
             // Botón de texto alternar modo en color Rosa Neón;
 
-            TextButton(onClick = { viewModel.onToggleMode() }) {
+            TextButton(onClick = { onAction(LoginAction.ToggleMode) }) {
                 Text(
                     text = if (state.isRegisterMode) "¿Ya tienes cuenta? Inicia sesión" else "¿No tienes cuenta? Regístrate",
                     color = colors.primary,

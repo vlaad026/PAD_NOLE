@@ -1,6 +1,7 @@
 ﻿package com.example.nole.data.repository
 
 import com.example.nole.core.network.SupabaseProvider
+import com.example.nole.ioDispatcher
 import com.example.nole.core.util.sha256Hex
 import com.example.nole.data.dto.CatalogItemDto
 import com.example.nole.data.dto.ChatMessageDto
@@ -21,7 +22,6 @@ import io.github.jan.supabase.realtime.postgresChangeFlow
 import kotlin.uuid.Uuid
 import io.github.jan.supabase.realtime.RealtimeChannel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +38,7 @@ class MarketplaceRepositoryImpl(
 ) : MarketplaceRepository {
 
     private val client = supabaseProvider.client
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher + SupervisorJob())
     private var started = false
     private var sessionGeneration = 0
     private var messagesJob: Job? = null
@@ -73,7 +73,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
-    override suspend fun login(emailOrUsername: String, password: String): String? = withContext(Dispatchers.IO) {
+    override suspend fun login(emailOrUsername: String, password: String): String? = withContext(ioDispatcher) {
         val key = emailOrUsername.trim()
         if (key.isEmpty() || password.isEmpty()) return@withContext "Por favor, rellena todos los campos"
         try {
@@ -98,7 +98,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
-    override suspend fun register(username: String, email: String, password: String): String? = withContext(Dispatchers.IO) {
+    override suspend fun register(username: String, email: String, password: String): String? = withContext(ioDispatcher) {
         val cleanEmail = email.trim()
         if (cleanEmail.isEmpty() || password.isEmpty()) {
             return@withContext "Por favor, rellena todos los campos"
@@ -122,7 +122,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
-    override suspend fun markSold(productId: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun markSold(productId: String): Boolean = withContext(ioDispatcher) {
         val current = _items.value.find { it.id == productId } ?: return@withContext false
         if (current.isSold) return@withContext false
         try {
@@ -141,7 +141,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
-    override suspend fun publish(item: CatalogItem): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun publish(item: CatalogItem): Boolean = withContext(ioDispatcher) {
         val sellerId = item.sellerId.ifBlank { _currentUser.value?.id.orEmpty() }
         if (sellerId.isBlank()) return@withContext false
         val row = item.toDto(sellerId)
@@ -155,7 +155,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
-    override suspend fun sendMessage(productId: String, text: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun sendMessage(productId: String, text: String): Boolean = withContext(ioDispatcher) {
         val clean = text.trim()
         if (clean.isEmpty()) return@withContext false
         val sender = _currentUser.value ?: return@withContext false
