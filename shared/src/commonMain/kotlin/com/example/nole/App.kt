@@ -3,13 +3,16 @@ package com.example.nole
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.nole.core.ui.NoleTheme
 import com.example.nole.di.AppContainer
 import com.example.nole.di.DefaultAppContainer
@@ -22,21 +25,12 @@ import com.example.nole.features.exchange.ExchangeViewModel
 import com.example.nole.features.login.LoginScreen
 import com.example.nole.features.login.LoginViewModel
 
-enum class Pantalla {
-    DASHBOARD,
-    LOGIN,
-    EXCHANGE,
-    CHATS
-}
-
 @Composable
 @Preview
 fun App(appContainer: AppContainer = DefaultAppContainer()) {
     val repository = appContainer.marketplaceRepository
-    var pantallaActual by remember { mutableStateOf(Pantalla.LOGIN) }
-    var productoId by remember { mutableStateOf<String?>(null) }
+    val navController = rememberNavController()
     var huboSesion by remember { mutableStateOf(false) }
-    var authEpoch by remember { mutableIntStateOf(0) }
     val currentUser by repository.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -47,15 +41,35 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
         if (currentUser != null) {
             huboSesion = true
         } else if (huboSesion) {
-            productoId = null
-            pantallaActual = Pantalla.LOGIN
-            authEpoch += 1
+            navController.navigate(Route.Login) {
+                popUpTo(0) { inclusive = true }
+            }
         }
     }
 
     NoleTheme {
-        when (pantallaActual) {
-            Pantalla.DASHBOARD -> {
+        NavHost(
+            navController = navController,
+            startDestination = Route.Login,
+        ) {
+            composable<Route.Login> {
+                LoginScreen(
+                    viewModel = viewModel {
+                        LoginViewModel(
+                            appContainer.loginUseCase,
+                            appContainer.registerUseCase,
+                        )
+                    },
+                    onBackClick = {},
+                    onLoginSuccess = {
+                        navController.navigate(Route.Dashboard) {
+                            popUpTo<Route.Login> { inclusive = true }
+                        }
+                    },
+                    showBack = false,
+                )
+            }
+            composable<Route.Dashboard> {
                 DashboardScreen(
                     viewModel = viewModel {
                         DashboardViewModel(
@@ -64,67 +78,48 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
                         )
                     },
                     onNavigateToLogin = {
-                        pantallaActual = Pantalla.LOGIN
+                        navController.navigate(Route.Login)
                     },
                     onNavigateToChats = {
-                        pantallaActual = Pantalla.CHATS
+                        navController.navigate(Route.Chats)
                     },
                     onProductClick = { id ->
-                        productoId = id
-                        pantallaActual = Pantalla.EXCHANGE
-                    }
+                        navController.navigate(Route.Exchange(id))
+                    },
                 )
             }
-            Pantalla.LOGIN -> {
-                LoginScreen(
-                    viewModel = viewModel(key = "login-$authEpoch") {
-                        LoginViewModel(
-                            appContainer.loginUseCase,
-                            appContainer.registerUseCase,
-                        )
+            composable<Route.Exchange> { backStackEntry ->
+                val route = backStackEntry.toRoute<Route.Exchange>()
+                ExchangeScreen(
+                    productId = route.productId,
+                    viewModel = viewModel {
+                        ExchangeViewModel(route.productId, appContainer.marketplaceRepository)
                     },
-                    authKey = "login-$authEpoch",
-                    onBackClick = {},
-                    onLoginSuccess = {
-                        productoId = null
-                        pantallaActual = Pantalla.DASHBOARD
+                    onBackClick = {
+                        navController.popBackStack()
                     },
-                    showBack = false,
+                    onNavigateToChats = {
+                        navController.navigate(Route.Chats)
+                    },
+                    onNavigateToLogin = {
+                        navController.navigate(Route.Login)
+                    },
                 )
             }
-            Pantalla.EXCHANGE -> {
-                val id = productoId
-                if (id != null) {
-                    ExchangeScreen(
-                        productId = id,
-                        viewModel = viewModel(key = id) {
-                            ExchangeViewModel(id, appContainer.marketplaceRepository)
-                        },
-                        onBackClick = {
-                            pantallaActual = Pantalla.DASHBOARD
-                        },
-                        onNavigateToChats = {
-                            pantallaActual = Pantalla.CHATS
-                        },
-                        onNavigateToLogin = {
-                            pantallaActual = Pantalla.LOGIN
-                        }
-                    )
-                }
-            }
-            Pantalla.CHATS -> {
+            composable<Route.Chats> {
                 ChatsScreen(
                     viewModel = viewModel { ChatsViewModel(appContainer.marketplaceRepository) },
                     onBackClick = {
-                        pantallaActual = Pantalla.DASHBOARD
+                        navController.popBackStack()
                     },
                     onHomeClick = {
-                        pantallaActual = Pantalla.DASHBOARD
+                        navController.navigate(Route.Dashboard) {
+                            popUpTo<Route.Dashboard> { inclusive = false }
+                        }
                     },
                     onChatClick = { productId ->
-                        productoId = productId
-                        pantallaActual = Pantalla.EXCHANGE
-                    }
+                        navController.navigate(Route.Exchange(productId))
+                    },
                 )
             }
         }
