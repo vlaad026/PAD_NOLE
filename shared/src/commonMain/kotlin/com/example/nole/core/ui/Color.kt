@@ -1,4 +1,4 @@
-package com.example.nole.ui
+package com.example.nole.core.ui
 
 import androidx.compose.ui.graphics.Color
 

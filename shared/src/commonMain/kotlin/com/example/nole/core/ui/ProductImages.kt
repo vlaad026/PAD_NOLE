@@ -1,4 +1,4 @@
-package com.example.nole.ui
+package com.example.nole.core.ui
 
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.c_1

@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -50,13 +52,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.model.ChatMessage
-import com.example.nole.ui.noleTextFieldColors
-import com.example.nole.ui.resolveDrawableResource
+import com.example.nole.core.ui.noleTextFieldColors
+import com.example.nole.core.ui.resolveDrawableResource
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.ic_arrow_left
 import nole.shared.generated.resources.ic_arrow_right
@@ -200,21 +203,27 @@ private fun ExchangeHeader(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onBackClick) {
+        TextButton(
+            onClick = onBackClick,
+            modifier = Modifier.height(40.dp),
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+        ) {
             Text(
                 text = "❮ Volver",
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                softWrap = false,
             )
         }
         Spacer(modifier = Modifier.weight(1f))
         OutlinedButton(
             onClick = onNavigateToChats,
-            modifier = Modifier.height(32.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+            modifier = Modifier.height(40.dp),
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(
@@ -223,9 +232,19 @@ private fun ExchangeHeader(
                 modifier = Modifier.size(14.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "Chats", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Text(
+                text = "Chats",
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                maxLines = 1,
+                softWrap = false,
+            )
         }
-        IconButton(onClick = onNavigateToLogin) {
+        Spacer(modifier = Modifier.width(4.dp))
+        IconButton(
+            onClick = onNavigateToLogin,
+            modifier = Modifier.size(40.dp),
+        ) {
             Icon(
                 painter = painterResource(Res.drawable.ic_person),
                 contentDescription = "Iniciar sesión",
@@ -332,7 +351,7 @@ private fun ProductPane(
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 3.dp)
-                            .size(if (selected) 8.dp else 6.dp)
+                            .size(8.dp)
                             .clip(CircleShape)
                             .background(
                                 if (selected) {
@@ -345,7 +364,10 @@ private fun ProductPane(
                     )
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            ) {
                 images.forEachIndexed { imagePosition, name ->
                     val selected = imagePosition == index
                     Image(
@@ -585,6 +607,10 @@ private fun MessageComposer(
                 placeholder = { Text("Envía un mensaje...") },
                 singleLine = true,
                 colors = fieldColors,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(
+                    onSend = { if (canSend) onSend() },
+                ),
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))

@@ -14,7 +14,7 @@ import com.example.nole.Features.Dashboard.DashboardScreen
 import com.example.nole.Features.Exchange.ExchangeScreen
 import com.example.nole.Features.Login.LoginScreen
 import com.example.nole.data.MarketplaceRepository
-import com.example.nole.ui.NoleTheme
+import com.example.nole.core.ui.NoleTheme
 
 enum class Pantalla {
     DASHBOARD,

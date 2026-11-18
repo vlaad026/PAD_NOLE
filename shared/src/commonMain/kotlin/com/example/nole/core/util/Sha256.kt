@@ -1,4 +1,4 @@
-package com.example.nole.data
+package com.example.nole.core.util
 
 internal fun sha256Hex(value: String): String {
     val digest = sha256(value.encodeToByteArray())

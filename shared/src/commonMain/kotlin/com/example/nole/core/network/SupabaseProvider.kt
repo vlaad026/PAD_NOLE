@@ -1,4 +1,4 @@
-package com.example.nole.data
+package com.example.nole.core.network
 
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
@@ -196,27 +197,39 @@ private fun ChatsBottomBar(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = onBackClick) {
+            TextButton(
+                onClick = onBackClick,
+                modifier = Modifier.height(40.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+            ) {
                 Text(
                     text = "❮ Volver",
                     color = colors.onSurface,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    softWrap = false,
                 )
             }
-            TextButton(onClick = onHomeClick) {
+            TextButton(
+                onClick = onHomeClick,
+                modifier = Modifier.height(40.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+            ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_home),
                     contentDescription = "Inicio",
                     tint = colors.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Inicio",
                     color = colors.primary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    softWrap = false,
                 )
             }
         }

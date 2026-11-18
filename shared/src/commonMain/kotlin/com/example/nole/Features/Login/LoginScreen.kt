@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nole.ui.noleTextFieldColors
+import com.example.nole.core.ui.noleTextFieldColors
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource

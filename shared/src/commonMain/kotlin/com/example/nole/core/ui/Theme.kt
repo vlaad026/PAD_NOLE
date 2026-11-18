@@ -1,4 +1,4 @@
-package com.example.nole.ui
+package com.example.nole.core.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults

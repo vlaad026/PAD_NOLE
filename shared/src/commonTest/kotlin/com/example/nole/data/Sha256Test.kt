@@ -1,5 +1,6 @@
 package com.example.nole.data
 
+import com.example.nole.core.util.sha256Hex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

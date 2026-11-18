@@ -1,5 +1,7 @@
 ﻿package com.example.nole.data
 
+import com.example.nole.core.network.SupabaseProvider
+import com.example.nole.core.util.sha256Hex
 import com.example.nole.data.dto.CatalogItemDto
 import com.example.nole.data.dto.ChatMessageDto
 import com.example.nole.data.dto.SoldPatch

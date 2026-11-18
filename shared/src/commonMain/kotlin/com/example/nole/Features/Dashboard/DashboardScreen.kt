@@ -67,8 +67,8 @@ import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_person
 import nole.shared.generated.resources.ic_search
 import nole.shared.generated.resources.nole_azul
-import com.example.nole.ui.resolveDrawableResource
-import com.example.nole.ui.noleTextFieldColors
+import com.example.nole.core.ui.noleTextFieldColors
+import com.example.nole.core.ui.resolveDrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -215,14 +215,6 @@ private fun MarketplaceHeader(
                 onClick = { onSectionSelected(MarketplaceSection.COCHES) }
             )
             Spacer(modifier = Modifier.weight(1f))
-        }
-
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
             HeaderActionButton(
                 text = "Chats",
                 icon = painterResource(Res.drawable.ic_chat),
@@ -274,10 +266,10 @@ private fun HeaderActionButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = Modifier.height(32.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+        modifier = Modifier.height(40.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
         border = BorderStroke(1.dp, contentColor),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor)
     ) {
         Icon(
@@ -289,7 +281,9 @@ private fun HeaderActionButton(
         Text(
             text = text,
             fontWeight = FontWeight.Bold,
-            fontSize = 12.sp
+            fontSize = 12.sp,
+            maxLines = 1,
+            softWrap = false
         )
     }
 }
@@ -301,28 +295,41 @@ private fun SectionButton(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
+    val label = @Composable {
+        Text(
+            text = text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            maxLines = 1,
+            softWrap = false,
+        )
+    }
     if (selected) {
         Button(
             onClick = onClick,
-            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.height(40.dp),
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Text(text = text, fontWeight = FontWeight.Bold)
+            label()
         }
     } else {
         OutlinedButton(
             onClick = onClick,
-            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.height(40.dp),
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+            shape = RoundedCornerShape(18.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 contentColor = MaterialTheme.colorScheme.primary,
             )
         ) {
-            Text(text = text, fontWeight = FontWeight.Bold)
+            label()
         }
     }
 }
