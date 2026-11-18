@@ -57,7 +57,12 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
         when (pantallaActual) {
             Pantalla.DASHBOARD -> {
                 DashboardScreen(
-                    viewModel = viewModel { DashboardViewModel(appContainer.marketplaceRepository) },
+                    viewModel = viewModel {
+                        DashboardViewModel(
+                            appContainer.marketplaceRepository,
+                            appContainer.filterCatalogUseCase,
+                        )
+                    },
                     onNavigateToLogin = {
                         pantallaActual = Pantalla.LOGIN
                     },
@@ -73,7 +78,10 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
             Pantalla.LOGIN -> {
                 LoginScreen(
                     viewModel = viewModel(key = "login-$authEpoch") {
-                        LoginViewModel(appContainer.marketplaceRepository)
+                        LoginViewModel(
+                            appContainer.loginUseCase,
+                            appContainer.registerUseCase,
+                        )
                     },
                     authKey = "login-$authEpoch",
                     onBackClick = {},

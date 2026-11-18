@@ -3,9 +3,9 @@ package com.example.nole.features.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nole.domain.repository.MarketplaceRepository
-import com.example.nole.domain.model.CatalogItem
 import com.example.nole.domain.model.MarketplaceSection
+import com.example.nole.domain.repository.MarketplaceRepository
+import com.example.nole.domain.usecase.FilterCatalogUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class DashboardViewModel(
     private val repository: MarketplaceRepository,
+    private val filterCatalogUseCase: FilterCatalogUseCase,
 ) : ViewModel() {
 
 
@@ -28,7 +29,15 @@ class DashboardViewModel(
         repository.currentUser,
     ) { current, items, user ->
         current.copy(
-            visibleProducts = items.filter { it.matches(current) },
+            visibleProducts = filterCatalogUseCase(
+                items = items,
+                section = current.section,
+                searchQuery = current.searchQuery,
+                selectedCategories = current.selectedCategories,
+                selectedConditions = current.selectedConditions,
+                priceFrom = current.appliedPriceFrom?.toDouble(),
+                priceTo = current.appliedPriceTo?.toDouble(),
+            ),
             currentUsername = user?.username,
         )
     }.stateIn(
@@ -118,18 +127,4 @@ class DashboardViewModel(
 }
 
 
-private fun CatalogItem.matches(state: DashboardUiState): Boolean {
-    if (isSold || section != state.section) return false
-    val query = state.searchQuery.trim()
-    val matchesQuery = query.isEmpty() ||
-            title.contains(query, ignoreCase = true) ||
-            subCategory.contains(query, ignoreCase = true) ||
-            category.contains(query, ignoreCase = true) ||
-            description.contains(query, ignoreCase = true)
-    val matchesCategory = state.selectedCategories.isEmpty() || subCategory in state.selectedCategories
-    val matchesCondition = state.selectedConditions.isEmpty() || condition in state.selectedConditions
-    val matchesFrom = state.appliedPriceFrom == null || price >= state.appliedPriceFrom.toDouble()
-    val matchesTo = state.appliedPriceTo == null || price <= state.appliedPriceTo.toDouble()
-    return matchesQuery && matchesCategory && matchesCondition && matchesFrom && matchesTo
-}
 
