@@ -33,9 +33,11 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-object MarketplaceRepositoryImpl : MarketplaceRepository {
+class MarketplaceRepositoryImpl(
+    private val supabaseProvider: SupabaseProvider,
+) : MarketplaceRepository {
 
-    private val client = SupabaseProvider.client
+    private val client = supabaseProvider.client
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var started = false
     private var sessionGeneration = 0
