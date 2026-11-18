@@ -1,8 +1,8 @@
 package com.example.nole.features.exchange
 
 
-import com.example.nole.model.ChatMessage
-import com.example.nole.model.MarketplaceSection
+import com.example.nole.domain.model.ChatMessage
+import com.example.nole.domain.model.MarketplaceSection
 
 
 data class ExchangeUiState(

@@ -3,7 +3,7 @@ package com.example.nole.features.exchange
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nole.data.MarketplaceRepository
+import com.example.nole.data.repository.MarketplaceRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,8 +30,8 @@ class ExchangeViewModel(
 
 
     val uiState: StateFlow<ExchangeUiState> = combine(
-        MarketplaceRepository.items,
-        MarketplaceRepository.messages,
+        MarketplaceRepositoryImpl.items,
+        MarketplaceRepositoryImpl.messages,
         local,
     ) { items, messages, ui ->
         val item = items.find { it.id == productId }
@@ -104,7 +104,7 @@ class ExchangeViewModel(
 
     fun onConfirmPurchase() {
         viewModelScope.launch {
-            val sold = MarketplaceRepository.markSold(productId)
+            val sold = MarketplaceRepositoryImpl.markSold(productId)
             local.update {
                 it.copy(
                     showPurchaseDialog = false,
@@ -128,9 +128,9 @@ class ExchangeViewModel(
     fun onSendMessage() {
         val text = local.value.draftMessage
         if (text.isBlank()) return
-        val loggedIn = MarketplaceRepository.currentUser.value != null
+        val loggedIn = MarketplaceRepositoryImpl.currentUser.value != null
         viewModelScope.launch {
-            val sent = MarketplaceRepository.sendMessage(productId, text)
+            val sent = MarketplaceRepositoryImpl.sendMessage(productId, text)
             local.update {
                 if (sent) {
                     it.copy(draftMessage = "")

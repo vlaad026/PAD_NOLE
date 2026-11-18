@@ -1,4 +1,4 @@
-package com.example.nole.model
+package com.example.nole.domain.model
 
 enum class MarketplaceSection(
     val title: String,

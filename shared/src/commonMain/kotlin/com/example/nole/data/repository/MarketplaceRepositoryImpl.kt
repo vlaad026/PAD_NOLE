@@ -1,4 +1,4 @@
-﻿package com.example.nole.data
+﻿package com.example.nole.data.repository
 
 import com.example.nole.core.network.SupabaseProvider
 import com.example.nole.core.util.sha256Hex
@@ -7,9 +7,10 @@ import com.example.nole.data.dto.ChatMessageDto
 import com.example.nole.data.dto.SoldPatch
 import com.example.nole.data.dto.UserDto
 import com.example.nole.data.dto.UserNameDto
-import com.example.nole.model.CatalogItem
-import com.example.nole.model.ChatMessage
-import com.example.nole.model.User
+import com.example.nole.domain.model.CatalogItem
+import com.example.nole.domain.model.ChatMessage
+import com.example.nole.domain.model.User
+import com.example.nole.domain.repository.MarketplaceRepository
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
@@ -32,7 +33,7 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-object MarketplaceRepository {
+object MarketplaceRepositoryImpl : MarketplaceRepository {
 
     private val client = SupabaseProvider.client
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -43,22 +44,22 @@ object MarketplaceRepository {
     private var channelSeq = 0
 
     private val _items = MutableStateFlow<List<CatalogItem>>(emptyList())
-    val items: StateFlow<List<CatalogItem>> = _items.asStateFlow()
+    override val items: StateFlow<List<CatalogItem>> = _items.asStateFlow()
 
     private val _messages = MutableStateFlow<Map<String, List<ChatMessage>>>(emptyMap())
-    val messages: StateFlow<Map<String, List<ChatMessage>>> = _messages.asStateFlow()
+    override val messages: StateFlow<Map<String, List<ChatMessage>>> = _messages.asStateFlow()
 
     private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
+    override val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    fun logout() {
+    override fun logout() {
         sessionGeneration += 1
         stopMessageSession()
         _messages.value = emptyMap()
         _currentUser.value = null
     }
 
-    fun start() {
+    override fun start() {
         if (started) return
         started = true
         scope.launch {
@@ -70,7 +71,7 @@ object MarketplaceRepository {
         }
     }
 
-    suspend fun login(emailOrUsername: String, password: String): String? = withContext(Dispatchers.IO) {
+    override suspend fun login(emailOrUsername: String, password: String): String? = withContext(Dispatchers.IO) {
         val key = emailOrUsername.trim()
         if (key.isEmpty() || password.isEmpty()) return@withContext "Por favor, rellena todos los campos"
         try {
@@ -95,7 +96,7 @@ object MarketplaceRepository {
         }
     }
 
-    suspend fun register(username: String, email: String, password: String): String? = withContext(Dispatchers.IO) {
+    override suspend fun register(username: String, email: String, password: String): String? = withContext(Dispatchers.IO) {
         val cleanEmail = email.trim()
         if (cleanEmail.isEmpty() || password.isEmpty()) {
             return@withContext "Por favor, rellena todos los campos"
@@ -119,7 +120,7 @@ object MarketplaceRepository {
         }
     }
 
-    suspend fun markSold(productId: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun markSold(productId: String): Boolean = withContext(Dispatchers.IO) {
         val current = _items.value.find { it.id == productId } ?: return@withContext false
         if (current.isSold) return@withContext false
         try {
@@ -138,7 +139,7 @@ object MarketplaceRepository {
         }
     }
 
-    suspend fun publish(item: CatalogItem): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun publish(item: CatalogItem): Boolean = withContext(Dispatchers.IO) {
         val sellerId = item.sellerId.ifBlank { _currentUser.value?.id.orEmpty() }
         if (sellerId.isBlank()) return@withContext false
         val row = item.toDto(sellerId)
@@ -152,7 +153,7 @@ object MarketplaceRepository {
         }
     }
 
-    suspend fun sendMessage(productId: String, text: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun sendMessage(productId: String, text: String): Boolean = withContext(Dispatchers.IO) {
         val clean = text.trim()
         if (clean.isEmpty()) return@withContext false
         val sender = _currentUser.value ?: return@withContext false

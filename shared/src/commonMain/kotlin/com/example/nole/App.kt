@@ -13,7 +13,7 @@ import com.example.nole.features.chats.ChatsScreen
 import com.example.nole.features.dashboard.DashboardScreen
 import com.example.nole.features.exchange.ExchangeScreen
 import com.example.nole.features.login.LoginScreen
-import com.example.nole.data.MarketplaceRepository
+import com.example.nole.data.repository.MarketplaceRepositoryImpl
 import com.example.nole.core.ui.NoleTheme
 
 enum class Pantalla {
@@ -30,10 +30,10 @@ fun App() {
     var productoId by remember { mutableStateOf<String?>(null) }
     var huboSesion by remember { mutableStateOf(false) }
     var authEpoch by remember { mutableIntStateOf(0) }
-    val currentUser by MarketplaceRepository.currentUser.collectAsStateWithLifecycle()
+    val currentUser by MarketplaceRepositoryImpl.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        MarketplaceRepository.start()
+        MarketplaceRepositoryImpl.start()
     }
 
     LaunchedEffect(currentUser?.id) {

@@ -60,8 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nole.model.CatalogItem
-import com.example.nole.model.MarketplaceSection
+import com.example.nole.domain.model.CatalogItem
+import com.example.nole.domain.model.MarketplaceSection
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_person

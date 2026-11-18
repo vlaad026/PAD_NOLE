@@ -1,8 +1,8 @@
 package com.example.nole.features.dashboard
 
 
-import com.example.nole.model.CatalogItem
-import com.example.nole.model.MarketplaceSection
+import com.example.nole.domain.model.CatalogItem
+import com.example.nole.domain.model.MarketplaceSection
 
 
 val ProductConditions = listOf("Nuevo", "Como nuevo", "Buen estado", "Sin abrir")
