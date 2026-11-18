@@ -2,6 +2,7 @@ package com.example.nole.domain.usecase
 
 import com.example.nole.domain.repository.MarketplaceRepository
 
+// CASO DE USO PARA VALIDAR LOS DATOS DE REGISTRO Y CERAR NUEVA CUENTA
 class RegisterUseCase(
     private val repository: MarketplaceRepository,
 ) {

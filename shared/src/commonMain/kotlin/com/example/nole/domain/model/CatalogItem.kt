@@ -17,6 +17,7 @@ enum class MarketplaceSection(
     ),
 }
 
+// PRODUCTO
 data class CatalogItem(
     val id: String,
     val sellerId: String,
@@ -47,6 +48,7 @@ data class CatalogItem(
         get() = price.toEuroLabel()
 }
 
+// MENSAJE
 data class ChatMessage(
     val id: Int,
     val text: String,
@@ -64,6 +66,7 @@ fun String.toMarketplaceSection(): MarketplaceSection {
     }
 }
 
+// FORMATEAR PRECIO
 fun Double.toEuroLabel(): String {
     val cents = kotlin.math.round(this * 100).toLong()
     val euros = cents / 100

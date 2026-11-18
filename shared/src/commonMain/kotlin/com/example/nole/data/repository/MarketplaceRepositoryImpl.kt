@@ -54,6 +54,7 @@ class MarketplaceRepositoryImpl(
     private val _currentUser = MutableStateFlow<User?>(null)
     override val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
+    // CIERRA LA SESIÓN ACTUAL, Y DETIENE LOS CHATS
     override fun logout() {
         sessionGeneration += 1
         stopMessageSession()
@@ -61,6 +62,7 @@ class MarketplaceRepositoryImpl(
         _currentUser.value = null
     }
 
+    // INICIA EL CATALOGO DE PRODUCTOS
     override fun start() {
         if (started) return
         started = true
@@ -73,6 +75,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // LÓGICA DE LOGIN
     override suspend fun login(emailOrUsername: String, password: String): String? = withContext(ioDispatcher) {
         val key = emailOrUsername.trim()
         if (key.isEmpty() || password.isEmpty()) return@withContext "Por favor, rellena todos los campos"
@@ -98,6 +101,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // LÓGICA DE REGISTRO
     override suspend fun register(username: String, email: String, password: String): String? = withContext(ioDispatcher) {
         val cleanEmail = email.trim()
         if (cleanEmail.isEmpty() || password.isEmpty()) {
@@ -122,6 +126,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // MARCA COMO VENDIDO UN PRODUCTO Y ACTUALIZA LA LISTA DE PRODUCTOS
     override suspend fun markSold(productId: String): Boolean = withContext(ioDispatcher) {
         val current = _items.value.find { it.id == productId } ?: return@withContext false
         if (current.isSold) return@withContext false
@@ -141,6 +146,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // INSERTAR NUEVO PRODUCTO EN LA BBDD Y ACTUALUZAR CATALOGO
     override suspend fun publish(item: CatalogItem): Boolean = withContext(ioDispatcher) {
         val sellerId = item.sellerId.ifBlank { _currentUser.value?.id.orEmpty() }
         if (sellerId.isBlank()) return@withContext false
@@ -155,6 +161,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // GUARDAR MENSAJE Y ASOCIARLO AL PRODUCTO
     override suspend fun sendMessage(productId: String, text: String): Boolean = withContext(ioDispatcher) {
         val clean = text.trim()
         if (clean.isEmpty()) return@withContext false
@@ -179,6 +186,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // ACTUALIZAR CATÁLOGO
     private suspend fun refreshCatalog() {
         val rows = client.from("catalog_items").select().decodeList<CatalogItemDto>()
         val names = client.from("users")
@@ -188,6 +196,8 @@ class MarketplaceRepositoryImpl(
         _items.value = rows.map { dto -> dto.toItem(names) }
     }
 
+    // CARGAR USUARIO Y SUS MENSAJES
+    // DESCARGA HISTORIAL ANTIGUO Y ABRE EL REALTIME
     private suspend fun beginSession(user: User) {
         sessionGeneration += 1
         val generation = sessionGeneration
@@ -208,6 +218,8 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // CUANDO CIERRAS SESIÓN, CANCELA LA CORRUTINA DE ESCUCHA DE MENSAJES EN DIRECTO
+    // CIERRA EL REALTIME EN LA BBDD
     private fun stopMessageSession() {
         messagesJob?.cancel()
         messagesJob = null
@@ -224,6 +236,8 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // CARGAR MENSAJES QUE ENVÍAS O RECIBES (ORDENADAMENTE)
+    // LOS AGRUPA POR PRODUCTO Y SE CONVIERTEN EN DTO PARA PINTARLOS
     private suspend fun refreshMessages(userId: String, generation: Int) {
         val rows = client.from("chat_messages").select {
             filter {
@@ -244,6 +258,7 @@ class MarketplaceRepositoryImpl(
             }
     }
 
+    // ABRE READTIME EN LA BBDD PARA RECIBIR MENSAJES EN DIRECTO
     private suspend fun subscribeToMessages(userId: String, generation: Int) {
         if (generation != sessionGeneration) return
         val channel = client.channel("chat-messages-$userId-${++channelSeq}")
@@ -262,6 +277,7 @@ class MarketplaceRepositoryImpl(
         channel.subscribe()
     }
 
+    // AÑADE UN MENSAJE NUEVO
     private fun append(dto: ChatMessageDto) {
         val userId = _currentUser.value?.id ?: return
         if (!dto.involves(userId)) return
@@ -277,6 +293,7 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // ID DEL DESTINATARIO DEL MENSAJE
     private fun resolveReceiver(productId: String, senderId: String, sellerId: String): String? {
         if (sellerId.isBlank()) return null
         if (senderId != sellerId) return sellerId
@@ -290,6 +307,8 @@ class MarketplaceRepositoryImpl(
         }
     }
 
+    // COMPRUEBA EL NOMBRE DE USUARIO AL REGISTRARSE
+    // ASEGURA QUE CADA USUARIO TENGA NOMBRE ÚNICO
     private suspend fun availableUsername(requested: String, email: String): String {
         val base = requested.trim().ifBlank { email.substringBefore("@").trim() }.ifBlank { "user" }
         var candidate = base
@@ -305,6 +324,7 @@ class MarketplaceRepositoryImpl(
 
     private fun newId(): String = Uuid.random().toString()
 
+    // CONVIERTE CatalogItem A CatalogItemDto PARA BBDD
     private fun CatalogItem.toDto(sellerId: String) = CatalogItemDto(
         id = id.ifBlank { newId() },
         sellerId = sellerId,
@@ -319,6 +339,7 @@ class MarketplaceRepositoryImpl(
         isSold = isSold,
     )
 
+    // CONVIERTE CatalogItemDto DE BBDD A CatalogItemDto
     private fun CatalogItemDto.toItem(usernames: Map<String, String>) = CatalogItem(
         id = id,
         sellerId = sellerId,
@@ -334,6 +355,7 @@ class MarketplaceRepositoryImpl(
         isSold = isSold,
     )
 
+    // CONVIERTE ChatMessageDto DE BBDD A ChatMessage
     private fun ChatMessageDto.toMessage(sellerId: String) = ChatMessage(
         id = remoteIdHash(id),
         text = text,
@@ -358,6 +380,7 @@ private fun parseCreatedAt(raw: String): Long {
     }
 }
 
+// EL USUARIO EMITE O RECIVE EL MENSAJE
 private fun ChatMessageDto.involves(userId: String): Boolean {
     return senderId == userId || receiverId == userId
 }

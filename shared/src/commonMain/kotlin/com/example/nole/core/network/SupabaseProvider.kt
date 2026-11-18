@@ -5,9 +5,12 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 
 class SupabaseProvider {
+
+    // CONEXIÓN CON LA BASE DE DATOS
     val URL = "https://hdicbxtrvbzqspobeeuo.supabase.co"
     val ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkaWNieHRydmJ6cXNwb2JlZXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MjcwMjEsImV4cCI6MjExMDQwMzAyMX0.T6UMO0BmhIvMwNJ9hanubfxCRe5gFwmgcZvGddKCCxQ"
 
+    // SE INICIALIZA LA BBDD CON LOS MÓDULOS POSTGREST Y REALTIME
     val client = createSupabaseClient(
         supabaseUrl = URL.trim(),
         supabaseKey = ANON_KEY.trim(),

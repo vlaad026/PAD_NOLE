@@ -3,6 +3,8 @@ package com.example.nole.data.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+
+// DTO QUE REPRESENTA UN USUARIO EN LA TABLA users
 @Serializable
 data class UserDto(
     val id: String = "",
@@ -11,6 +13,7 @@ data class UserDto(
     @SerialName("password_hash") val passwordHash: String = "",
 )
 
+// DTO QUE REPRESENTA UN PRODUCTO EN LA TABLA catalog_items
 @Serializable
 data class CatalogItemDto(
     val id: String = "",
@@ -26,6 +29,7 @@ data class CatalogItemDto(
     @SerialName("is_sold") val isSold: Boolean = false,
 )
 
+// DTO QUE REPRESENTA UN MENSAJE EN LA TABLA chat_message
 @Serializable
 data class ChatMessageDto(
     val id: String = "",
@@ -36,11 +40,13 @@ data class ChatMessageDto(
     @SerialName("created_at") val createdAt: String = "",
 )
 
+// DTO PARA ACTUALIZAR EL ESTADO DE UN PRODUCTO VENDIDO
 @Serializable
 internal data class SoldPatch(
     @SerialName("is_sold") val isSold: Boolean,
 )
 
+// DTO PARA OBTENER EL ID Y NOMBRE DE UN USUARIO
 @Serializable
 internal data class UserNameDto(
     val id: String = "",

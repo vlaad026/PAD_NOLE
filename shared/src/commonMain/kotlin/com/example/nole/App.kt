@@ -25,6 +25,8 @@ import com.example.nole.features.exchange.ExchangeViewModel
 import com.example.nole.features.login.LoginScreenRoot
 import com.example.nole.features.login.LoginViewModel
 
+
+// CONFIGURACIÓN DEL TEMA, CARGA INICIAL, CONTROL DE SESIÓN Y LA NAVEGACIÓN POR LA APP
 @Composable
 @Preview
 fun App(appContainer: AppContainer = DefaultAppContainer()) {
@@ -52,6 +54,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
             navController = navController,
             startDestination = Route.Login,
         ) {
+            // IR A DASHBOARD TRAS REGISTRARTE O INICIAR SESIÓN
             composable<Route.Login> {
                 LoginScreenRoot(
                     viewModel = viewModel {
@@ -69,6 +72,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
                     showBack = false,
                 )
             }
+            // PERMITE IR A EXCHANGE, CHATS O LOGIN
             composable<Route.Dashboard> {
                 DashboardScreenRoot(
                     viewModel = viewModel {
@@ -88,6 +92,7 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
                     },
                 )
             }
+            // PERMITE VOLVER AL DASHBOARD, ESTANDO EN EXCHANGE, PERMITIENDO IR A CHATS Y LOGIN
             composable<Route.Exchange> { backStackEntry ->
                 val route = backStackEntry.toRoute<Route.Exchange>()
                 ExchangeScreenRoot(
@@ -105,6 +110,8 @@ fun App(appContainer: AppContainer = DefaultAppContainer()) {
                     },
                 )
             }
+
+            // DESDE CHATS PERMITE VOLVER A ATRÁS, AL DASHBOARD O AL EXCHANGE
             composable<Route.Chats> {
                 ChatsScreenRoot(
                     viewModel = viewModel { ChatsViewModel(appContainer.marketplaceRepository) },

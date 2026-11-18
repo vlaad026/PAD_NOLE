@@ -3,6 +3,7 @@ package com.example.nole.domain.usecase
 import com.example.nole.domain.model.CatalogItem
 import com.example.nole.domain.model.MarketplaceSection
 
+// CASO DE USO PARA APLICAR LAS REGLAS DEL FILTRO
 class FilterCatalogUseCase {
     operator fun invoke(
         items: List<CatalogItem>,

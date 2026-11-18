@@ -2,6 +2,7 @@ package com.example.nole.domain.usecase
 
 import com.example.nole.domain.repository.MarketplaceRepository
 
+// CASO DE USO ENCARGADO DE VALIDAR LOS CAMPOS DE INICIO DE SESION
 class LoginUseCase(
     private val repository: MarketplaceRepository,
 ) {

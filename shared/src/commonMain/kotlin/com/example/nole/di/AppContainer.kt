@@ -7,6 +7,7 @@ import com.example.nole.domain.usecase.FilterCatalogUseCase
 import com.example.nole.domain.usecase.LoginUseCase
 import com.example.nole.domain.usecase.RegisterUseCase
 
+// DEPENDENCIAS COMPARTIDAS EN TODA LA APP
 interface AppContainer {
     val marketplaceRepository: MarketplaceRepository
     val loginUseCase: LoginUseCase
