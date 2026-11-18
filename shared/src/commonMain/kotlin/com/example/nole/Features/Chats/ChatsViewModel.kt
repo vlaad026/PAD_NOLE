@@ -43,4 +43,12 @@ class ChatsViewModel(
         started = SharingStarted.Eagerly,
         initialValue = ChatsUiState(),
     )
+
+    fun onAction(action: ChatsAction) {
+        when (action) {
+            ChatsAction.BackClick,
+            ChatsAction.HomeClick,
+            is ChatsAction.ChatClick -> Unit
+        }
+    }
 }

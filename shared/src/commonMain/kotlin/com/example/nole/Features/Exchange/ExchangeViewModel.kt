@@ -126,6 +126,20 @@ class ExchangeViewModel(
     }
 
 
+    fun onAction(action: ExchangeAction) {
+        when (action) {
+            ExchangeAction.PreviousImage -> onPreviousImage()
+            ExchangeAction.NextImage -> onNextImage()
+            is ExchangeAction.SelectImage -> onSelectImage(action.index)
+            ExchangeAction.BuyClick -> onBuyClick()
+            ExchangeAction.DismissPurchase -> onDismissPurchase()
+            ExchangeAction.ConfirmPurchase -> onConfirmPurchase()
+            ExchangeAction.PurchaseMessageConsumed -> onPurchaseMessageConsumed()
+            is ExchangeAction.DraftChanged -> onDraftChanged(action.message)
+            ExchangeAction.SendMessage -> onSendMessage()
+        }
+    }
+
     fun onSendMessage() {
         val text = local.value.draftMessage
         if (text.isBlank()) return

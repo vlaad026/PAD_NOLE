@@ -109,6 +109,19 @@ class DashboardViewModel(
     }
 
 
+    fun onAction(action: DashboardAction) {
+        when (action) {
+            is DashboardAction.SectionSelected -> onSectionSelected(action.section)
+            is DashboardAction.SearchChanged -> onSearchChanged(action.query)
+            is DashboardAction.CategoryChecked -> onCategoryChecked(action.category, action.checked)
+            is DashboardAction.ConditionChecked -> onConditionChecked(action.condition, action.checked)
+            is DashboardAction.PriceFromChanged -> onPriceFromChanged(action.value)
+            is DashboardAction.PriceToChanged -> onPriceToChanged(action.value)
+            DashboardAction.ApplyFilters -> onApplyFilters()
+            DashboardAction.Logout -> logout()
+        }
+    }
+
     fun onApplyFilters() {
         filters.update { state ->
             val from = state.priceFromInput.toIntOrNull()

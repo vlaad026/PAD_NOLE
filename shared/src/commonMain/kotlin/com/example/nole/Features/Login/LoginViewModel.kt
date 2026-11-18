@@ -81,4 +81,16 @@ class LoginViewModel(
     fun onSuccessHandled() {
         _uiState.update { it.copy(isSuccess = false) }
     }
+
+    fun onAction(action: LoginAction) {
+        when (action) {
+            is LoginAction.EmailChanged -> onEmailChanged(action.email)
+            is LoginAction.PasswordChanged -> onPasswordChanged(action.password)
+            is LoginAction.ConfirmPasswordChanged -> onConfirmPasswordChanged(action.confirmPassword)
+            LoginAction.ToggleMode -> onToggleMode()
+            LoginAction.Submit -> onSubmitClick()
+            LoginAction.SuccessHandled -> onSuccessHandled()
+            LoginAction.ResetToLogin -> resetToLogin()
+        }
+    }
 }
