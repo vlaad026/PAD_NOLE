@@ -56,7 +56,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.domain.model.ChatMessage
 import com.example.nole.core.ui.noleTextFieldColors
 import com.example.nole.core.ui.resolveDrawableResource
@@ -76,7 +75,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ExchangeScreen(
     productId: String,
-    viewModel: ExchangeViewModel = viewModel(key = productId) { ExchangeViewModel(productId) },
+    viewModel: ExchangeViewModel,
     onBackClick: () -> Unit = {},
     onNavigateToChats: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},

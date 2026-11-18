@@ -3,7 +3,7 @@ package com.example.nole.features.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nole.data.repository.MarketplaceRepositoryImpl
+import com.example.nole.domain.repository.MarketplaceRepository
 import com.example.nole.domain.model.CatalogItem
 import com.example.nole.domain.model.MarketplaceSection
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
-class DashboardViewModel : ViewModel() {
+class DashboardViewModel(
+    private val repository: MarketplaceRepository,
+) : ViewModel() {
 
 
     private val filters = MutableStateFlow(DashboardUiState())
@@ -22,8 +24,8 @@ class DashboardViewModel : ViewModel() {
 
     val uiState: StateFlow<DashboardUiState> = combine(
         filters,
-        MarketplaceRepositoryImpl.items,
-        MarketplaceRepositoryImpl.currentUser,
+        repository.items,
+        repository.currentUser,
     ) { current, items, user ->
         current.copy(
             visibleProducts = items.filter { it.matches(current) },
@@ -94,7 +96,7 @@ class DashboardViewModel : ViewModel() {
 
 
     fun logout() {
-        MarketplaceRepositoryImpl.logout()
+        repository.logout()
     }
 
 

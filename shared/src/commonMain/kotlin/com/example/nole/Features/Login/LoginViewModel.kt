@@ -3,7 +3,7 @@ package com.example.nole.features.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nole.data.repository.MarketplaceRepositoryImpl
+import com.example.nole.domain.repository.MarketplaceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val repository: MarketplaceRepository,
+) : ViewModel() {
 
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -72,13 +74,13 @@ class LoginViewModel : ViewModel() {
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
             val error = if (state.isRegisterMode) {
-                MarketplaceRepositoryImpl.register(
+                repository.register(
                     username = state.email.substringBefore("@").trim(),
                     email = state.email.trim(),
                     password = state.password,
                 )
             } else {
-                MarketplaceRepositoryImpl.login(state.email.trim(), state.password)
+                repository.login(state.email.trim(), state.password)
             }
             if (error != null) println("NOLE auth: $error")
             _uiState.update {

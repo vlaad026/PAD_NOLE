@@ -2,18 +2,20 @@ package com.example.nole.features.chats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nole.data.repository.MarketplaceRepositoryImpl
+import com.example.nole.domain.repository.MarketplaceRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class ChatsViewModel : ViewModel() {
+class ChatsViewModel(
+    private val repository: MarketplaceRepository,
+) : ViewModel() {
 
     val uiState: StateFlow<ChatsUiState> = combine(
-        MarketplaceRepositoryImpl.items,
-        MarketplaceRepositoryImpl.messages,
-        MarketplaceRepositoryImpl.currentUser,
+        repository.items,
+        repository.messages,
+        repository.currentUser,
     ) { items, messages, user ->
         if (user == null) {
             ChatsUiState()

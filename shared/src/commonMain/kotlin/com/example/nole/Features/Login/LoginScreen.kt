@@ -16,7 +16,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.core.ui.noleTextFieldColors
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.*
@@ -26,8 +25,8 @@ import org.jetbrains.compose.resources.painterResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel,
     authKey: String = "login",
-    viewModel: LoginViewModel = viewModel(key = authKey) { LoginViewModel() },
     onBackClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {},
     showBack: Boolean = true,

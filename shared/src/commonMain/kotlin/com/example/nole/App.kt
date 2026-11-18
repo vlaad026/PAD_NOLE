@@ -9,12 +9,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.nole.features.chats.ChatsScreen
-import com.example.nole.features.dashboard.DashboardScreen
-import com.example.nole.features.exchange.ExchangeScreen
-import com.example.nole.features.login.LoginScreen
-import com.example.nole.data.repository.MarketplaceRepositoryImpl
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.core.ui.NoleTheme
+import com.example.nole.di.AppContainer
+import com.example.nole.di.DefaultAppContainer
+import com.example.nole.features.chats.ChatsScreen
+import com.example.nole.features.chats.ChatsViewModel
+import com.example.nole.features.dashboard.DashboardScreen
+import com.example.nole.features.dashboard.DashboardViewModel
+import com.example.nole.features.exchange.ExchangeScreen
+import com.example.nole.features.exchange.ExchangeViewModel
+import com.example.nole.features.login.LoginScreen
+import com.example.nole.features.login.LoginViewModel
 
 enum class Pantalla {
     DASHBOARD,
@@ -25,15 +31,16 @@ enum class Pantalla {
 
 @Composable
 @Preview
-fun App() {
+fun App(appContainer: AppContainer = DefaultAppContainer()) {
+    val repository = appContainer.marketplaceRepository
     var pantallaActual by remember { mutableStateOf(Pantalla.LOGIN) }
     var productoId by remember { mutableStateOf<String?>(null) }
     var huboSesion by remember { mutableStateOf(false) }
     var authEpoch by remember { mutableIntStateOf(0) }
-    val currentUser by MarketplaceRepositoryImpl.currentUser.collectAsStateWithLifecycle()
+    val currentUser by repository.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        MarketplaceRepositoryImpl.start()
+        appContainer.marketplaceRepository.start()
     }
 
     LaunchedEffect(currentUser?.id) {
@@ -50,6 +57,7 @@ fun App() {
         when (pantallaActual) {
             Pantalla.DASHBOARD -> {
                 DashboardScreen(
+                    viewModel = viewModel { DashboardViewModel(appContainer.marketplaceRepository) },
                     onNavigateToLogin = {
                         pantallaActual = Pantalla.LOGIN
                     },
@@ -64,6 +72,9 @@ fun App() {
             }
             Pantalla.LOGIN -> {
                 LoginScreen(
+                    viewModel = viewModel(key = "login-$authEpoch") {
+                        LoginViewModel(appContainer.marketplaceRepository)
+                    },
                     authKey = "login-$authEpoch",
                     onBackClick = {},
                     onLoginSuccess = {
@@ -78,6 +89,9 @@ fun App() {
                 if (id != null) {
                     ExchangeScreen(
                         productId = id,
+                        viewModel = viewModel(key = id) {
+                            ExchangeViewModel(id, appContainer.marketplaceRepository)
+                        },
                         onBackClick = {
                             pantallaActual = Pantalla.DASHBOARD
                         },
@@ -92,6 +106,7 @@ fun App() {
             }
             Pantalla.CHATS -> {
                 ChatsScreen(
+                    viewModel = viewModel { ChatsViewModel(appContainer.marketplaceRepository) },
                     onBackClick = {
                         pantallaActual = Pantalla.DASHBOARD
                     },

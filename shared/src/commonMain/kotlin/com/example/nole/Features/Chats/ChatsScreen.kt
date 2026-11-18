@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import nole.shared.generated.resources.Res
 import nole.shared.generated.resources.ic_chat
 import nole.shared.generated.resources.ic_home
@@ -40,7 +39,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ChatsScreen(
-    viewModel: ChatsViewModel = viewModel { ChatsViewModel() },
+    viewModel: ChatsViewModel,
     onBackClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onChatClick: (String) -> Unit = {},

@@ -59,7 +59,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nole.domain.model.CatalogItem
 import com.example.nole.domain.model.MarketplaceSection
 import nole.shared.generated.resources.Res
@@ -74,7 +73,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel = viewModel { DashboardViewModel() },
+    viewModel: DashboardViewModel,
     onNavigateToLogin: () -> Unit = {},
     onNavigateToChats: () -> Unit = {},
     onProductClick: (String) -> Unit = {},
