@@ -202,8 +202,6 @@ class MarketplaceRepositoryImpl(
         sellerId: String,
     ) {
         if (sellerId.isBlank() || sellerId == buyerId) return
-        val thread = _messages.value[productId].orEmpty()
-        if (thread.any { it.senderId == sellerId }) return
         val replies = autoReplyMatcher.findReplies(text)
         if (replies.isEmpty()) return
         val generation = sessionGeneration
