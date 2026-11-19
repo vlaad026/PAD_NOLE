@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.pager.HorizontalPager
@@ -17,11 +18,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -130,29 +135,40 @@ fun ExchangeScreen(
                     )
                 }
             } else {
-                Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                    ProductPane(
-                        state = state,
-                        onPreviousImage = { onAction(ExchangeAction.PreviousImage) },
-                        onNextImage = { onAction(ExchangeAction.NextImage) },
-                        onSelectImage = { onAction(ExchangeAction.SelectImage(it)) },
-                        onBuyClick = { onAction(ExchangeAction.BuyClick) },
-                        modifier = Modifier.weight(1f).fillMaxHeight()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .fillMaxHeight()
-                            .background(MaterialTheme.colorScheme.outline)
-                    )
-                    ChatPane(
-                        sellerUsername = state.sellerUsername,
-                        messages = state.messages,
-                        draft = state.draftMessage,
-                        onDraftChanged = { onAction(ExchangeAction.DraftChanged(it)) },
-                        onSend = { onAction(ExchangeAction.SendMessage) },
-                        modifier = Modifier.weight(1f).fillMaxHeight()
-                    )
+                BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    val isCompact = maxWidth < 600.dp
+                    if (!isCompact) {
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            ProductPane(
+                                state = state,
+                                onPreviousImage = { onAction(ExchangeAction.PreviousImage) },
+                                onNextImage = { onAction(ExchangeAction.NextImage) },
+                                onSelectImage = { onAction(ExchangeAction.SelectImage(it)) },
+                                onBuyClick = { onAction(ExchangeAction.BuyClick) },
+                                modifier = Modifier.weight(1f).fillMaxHeight()
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .fillMaxHeight()
+                                    .background(MaterialTheme.colorScheme.outline)
+                            )
+                            ChatPane(
+                                sellerUsername = state.sellerUsername,
+                                messages = state.messages,
+                                draft = state.draftMessage,
+                                onDraftChanged = { onAction(ExchangeAction.DraftChanged(it)) },
+                                onSend = { onAction(ExchangeAction.SendMessage) },
+                                modifier = Modifier.weight(1f).fillMaxHeight()
+                            )
+                        }
+                    } else {
+                        CompactExchange(
+                            state = state,
+                            onAction = onAction,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
                 }
             }
         }
@@ -272,12 +288,143 @@ private fun ExchangeHeader(
 
 
 @Composable
+private fun CompactExchange(
+    state: ExchangeUiState,
+    onAction: (ExchangeAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            ProductPane(
+                state = state,
+                onPreviousImage = { onAction(ExchangeAction.PreviousImage) },
+                onNextImage = { onAction(ExchangeAction.NextImage) },
+                onSelectImage = { onAction(ExchangeAction.SelectImage(it)) },
+                onBuyClick = { onAction(ExchangeAction.BuyClick) },
+                imageHeight = 250.dp,
+                showPurchase = false,
+                scrollable = false,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            SellerOfferCard(
+                state = state,
+                onBuyClick = { onAction(ExchangeAction.BuyClick) },
+            )
+            CompactChat(
+                sellerUsername = state.sellerUsername,
+                messages = state.messages,
+            )
+        }
+        MessageComposer(
+            draft = state.draftMessage,
+            fieldColors = noleFieldColors(),
+            onDraftChanged = { onAction(ExchangeAction.DraftChanged(it)) },
+            onSend = { onAction(ExchangeAction.SendMessage) },
+            modifier = Modifier
+                .imePadding()
+                .navigationBarsPadding(),
+        )
+    }
+}
+
+
+@Composable
+private fun SellerOfferCard(
+    state: ExchangeUiState,
+    onBuyClick: () -> Unit,
+) {
+    val initial = state.sellerUsername.firstOrNull()?.uppercase().orEmpty()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = initial,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = state.sellerUsername,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        Text(
+            text = state.priceLabel,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        PurchaseAction(isSold = state.isSold, onBuyClick = onBuyClick)
+    }
+}
+
+
+@Composable
+private fun CompactChat(
+    sellerUsername: String,
+    messages: List<ChatMessage>,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_chat),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = sellerUsername,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        messages.forEach { message ->
+            MessageBubble(message = message, maxBubbleWidth = 280.dp)
+        }
+    }
+}
+
+
+@Composable
 private fun ProductPane(
     state: ExchangeUiState,
     onPreviousImage: () -> Unit,
     onNextImage: () -> Unit,
     onSelectImage: (Int) -> Unit,
     onBuyClick: () -> Unit,
+    imageHeight: Dp = 360.dp,
+    showPurchase: Boolean = true,
+    scrollable: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val images = state.images.ifEmpty { listOf(state.imageName).filter { it.isNotBlank() } }
@@ -299,14 +446,14 @@ private fun ProductPane(
 
     Column(
         modifier = modifier
-            .verticalScroll(rememberScrollState())
+            .then(if (scrollable) Modifier.verticalScroll(rememberScrollState()) else Modifier)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(360.dp)
+                .height(imageHeight)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFFF3F5F8))
         ) {
@@ -416,55 +563,73 @@ private fun ProductPane(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = state.priceLabel,
-            color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
+        if (showPurchase) {
+            Text(
+                text = state.priceLabel,
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        if (!showPurchase) {
+            Text(
+                text = state.description,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
         Text(
             text = listOf(state.subCategory, state.condition).filter { it.isNotBlank() }.joinToString(" · "),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
-        Text(
-            text = state.description,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-
-        if (state.isSold) {
+        if (showPurchase) {
             Text(
-                text = "Vendido",
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
+                text = state.description,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium
             )
-        } else {
-            Button(
-                onClick = onBuyClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_bag),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Comprar",
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
+            PurchaseAction(isSold = state.isSold, onBuyClick = onBuyClick)
+        }
+    }
+}
+
+
+@Composable
+private fun PurchaseAction(
+    isSold: Boolean,
+    onBuyClick: () -> Unit,
+) {
+    if (isSold) {
+        Text(
+            text = "Vendido",
+            color = MaterialTheme.colorScheme.secondary,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+    } else {
+        Button(
+            onClick = onBuyClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_bag),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Comprar",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
@@ -564,16 +729,23 @@ private fun ChatPane(
 
 
 @Composable
-private fun MessageBubble(message: ChatMessage) {
+private fun MessageBubble(
+    message: ChatMessage,
+    maxBubbleWidth: Dp? = null,
+) {
     val colors = MaterialTheme.colorScheme
     val ownMessage = !message.fromSeller
+    val bubbleModifier = if (maxBubbleWidth == null) {
+        Modifier.fillMaxWidth(0.92f)
+    } else {
+        Modifier.widthIn(max = maxBubbleWidth)
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (message.fromSeller) Arrangement.Start else Arrangement.End
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth(0.92f)
+            modifier = bubbleModifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(if (ownMessage) colors.tertiaryContainer else colors.surfaceVariant)
                 .border(
@@ -599,11 +771,12 @@ private fun MessageComposer(
     fieldColors: TextFieldColors,
     onDraftChanged: (String) -> Unit,
     onSend: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val canSend = draft.isNotBlank()
     val colors = MaterialTheme.colorScheme
 
-    Column(modifier = Modifier.fillMaxWidth().background(colors.surface)) {
+    Column(modifier = modifier.fillMaxWidth().background(colors.surface)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -619,7 +792,13 @@ private fun MessageComposer(
             OutlinedTextField(
                 value = draft,
                 onValueChange = onDraftChanged,
-                placeholder = { Text("Envía un mensaje...") },
+                placeholder = {
+                    Text(
+                        text = "Envía un mensaje...",
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                },
                 singleLine = true,
                 colors = fieldColors,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
