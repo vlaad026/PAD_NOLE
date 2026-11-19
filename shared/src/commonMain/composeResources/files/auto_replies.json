@@ -1,0 +1,35 @@
+[
+  {
+    "trigger": "hola",
+    "replies": [
+      "¡Hola! Gracias por escribir.",
+      "¿Qué te gustaría saber del artículo?"
+    ]
+  },
+  {
+    "trigger": "precio",
+    "replies": [
+      "El precio es el indicado en el anuncio, pero dime qué tienes en mente."
+    ]
+  },
+  {
+    "trigger": "disponible",
+    "replies": [
+      "Sí, sigue disponible ahora mismo.",
+      "Si te interesa lo podemos cerrar por aquí."
+    ]
+  },
+  {
+    "trigger": "envío",
+    "replies": [
+      "Hago envío protegido o entrega en mano si te viene mejor."
+    ]
+  },
+  {
+    "trigger": "estado",
+    "replies": [
+      "Está tal cual se ve en las fotos, muy bien cuidado.",
+      "Si necesitas algún detalle más dime y te cuento."
+    ]
+  }
+]

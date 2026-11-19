@@ -1,6 +1,7 @@
 ﻿package com.example.nole.data.repository
 
 import com.example.nole.core.network.SupabaseProvider
+import com.example.nole.data.AutoReplyMatcher
 import com.example.nole.ioDispatcher
 import com.example.nole.core.util.sha256Hex
 import com.example.nole.data.dto.CatalogItemDto
@@ -24,6 +25,7 @@ import io.github.jan.supabase.realtime.RealtimeChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,6 +40,7 @@ class MarketplaceRepositoryImpl(
 ) : MarketplaceRepository {
 
     private val client = supabaseProvider.client
+    private val autoReplyMatcher = AutoReplyMatcher()
     private val scope = CoroutineScope(ioDispatcher + SupervisorJob())
     private var started = false
     private var sessionGeneration = 0
@@ -179,10 +182,51 @@ class MarketplaceRepositoryImpl(
         try {
             client.from("chat_messages").insert(row)
             append(row)
+            scheduleAutoReplies(
+                productId = productId,
+                text = clean,
+                buyerId = sender.id,
+                sellerId = item.sellerId,
+            )
             true
         } catch (error: Exception) {
             println("NOLE sendMessage: ${error.message}")
             false
+        }
+    }
+
+    private suspend fun scheduleAutoReplies(
+        productId: String,
+        text: String,
+        buyerId: String,
+        sellerId: String,
+    ) {
+        if (sellerId.isBlank() || sellerId == buyerId) return
+        val thread = _messages.value[productId].orEmpty()
+        if (thread.any { it.senderId == sellerId }) return
+        val replies = autoReplyMatcher.findReplies(text)
+        if (replies.isEmpty()) return
+        val generation = sessionGeneration
+        scope.launch {
+            for (reply in replies) {
+                delay(1000L)
+                if (generation != sessionGeneration) return@launch
+                val row = ChatMessageDto(
+                    id = newId(),
+                    productId = productId,
+                    senderId = sellerId,
+                    receiverId = buyerId,
+                    text = reply,
+                    createdAt = Clock.System.now().toString(),
+                )
+                try {
+                    client.from("chat_messages").insert(row)
+                    append(row)
+                } catch (error: Exception) {
+                    println("NOLE autoReply: ${error.message}")
+                    return@launch
+                }
+            }
         }
     }
 
@@ -380,7 +424,7 @@ private fun parseCreatedAt(raw: String): Long {
     }
 }
 
-// EL USUARIO EMITE O RECIVE EL MENSAJE
+// EL USUARIO EMITE O RECIBE EL MENSAJE
 private fun ChatMessageDto.involves(userId: String): Boolean {
     return senderId == userId || receiverId == userId
 }
