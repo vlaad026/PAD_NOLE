@@ -1,9 +1,11 @@
 package com.example.nole.features.dashboard
 
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -14,12 +16,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +30,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -128,73 +132,52 @@ fun DashboardScreen(
             .background(MaterialTheme.colorScheme.background)
             .safeContentPadding()
     ) {
-        MarketplaceHeader(
-            state = state,
-            onSectionSelected = { onAction(DashboardAction.SectionSelected(it)) },
-            onSearchChanged = { onAction(DashboardAction.SearchChanged(it)) },
-            onNavigateToChats = { onAction(DashboardAction.OnNavigateToChats) },
-            onNavigateToLogin = { onAction(DashboardAction.OnNavigateToLogin) },
-            onLogoutClick = { confirmLogout = true },
-        )
-
-
-        BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (maxWidth >= 720.dp) {
-                Row(modifier = Modifier.fillMaxSize()) {
-                    FilterPanel(
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isCompact = maxWidth < 720.dp
+            Column(modifier = Modifier.fillMaxSize()) {
+                MarketplaceHeader(
+                    state = state,
+                    compact = isCompact,
+                    onSectionSelected = { onAction(DashboardAction.SectionSelected(it)) },
+                    onSearchChanged = { onAction(DashboardAction.SearchChanged(it)) },
+                    onNavigateToChats = { onAction(DashboardAction.OnNavigateToChats) },
+                    onNavigateToLogin = { onAction(DashboardAction.OnNavigateToLogin) },
+                    onLogoutClick = { confirmLogout = true },
+                )
+                if (!isCompact) {
+                    Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                        FilterPanel(
+                            state = state,
+                            onCategoryChecked = { category, checked ->
+                                onAction(DashboardAction.CategoryChecked(category, checked))
+                            },
+                            onConditionChecked = { condition, checked ->
+                                onAction(DashboardAction.ConditionChecked(condition, checked))
+                            },
+                            onPriceFromChanged = { onAction(DashboardAction.PriceFromChanged(it)) },
+                            onPriceToChanged = { onAction(DashboardAction.PriceToChanged(it)) },
+                            onApplyFilters = { onAction(DashboardAction.ApplyFilters) },
+                            modifier = Modifier
+                                .width(280.dp)
+                                .fillMaxSize()
+                        )
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.outline)
+                        )
+                        ProductGrid(
+                            products = state.visibleProducts,
+                            onProductClick = { onAction(DashboardAction.OnProductClick(it)) },
+                            modifier = Modifier.weight(1f).fillMaxSize()
+                        )
+                    }
+                } else {
+                    CompactCatalog(
                         state = state,
-                        onCategoryChecked = { category, checked ->
-                            onAction(DashboardAction.CategoryChecked(category, checked))
-                        },
-                        onConditionChecked = { condition, checked ->
-                            onAction(DashboardAction.ConditionChecked(condition, checked))
-                        },
-                        onPriceFromChanged = { onAction(DashboardAction.PriceFromChanged(it)) },
-                        onPriceToChanged = { onAction(DashboardAction.PriceToChanged(it)) },
-                        onApplyFilters = { onAction(DashboardAction.ApplyFilters) },
-                        modifier = Modifier
-                            .width(280.dp)
-                            .fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.outline)
-                    )
-                    ProductGrid(
-                        products = state.visibleProducts,
-                        onProductClick = { onAction(DashboardAction.OnProductClick(it)) },
-                        modifier = Modifier.weight(1f).fillMaxSize()
-                    )
-                }
-            } else {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    FilterPanel(
-                        state = state,
-                        onCategoryChecked = { category, checked ->
-                            onAction(DashboardAction.CategoryChecked(category, checked))
-                        },
-                        onConditionChecked = { condition, checked ->
-                            onAction(DashboardAction.ConditionChecked(condition, checked))
-                        },
-                        onPriceFromChanged = { onAction(DashboardAction.PriceFromChanged(it)) },
-                        onPriceToChanged = { onAction(DashboardAction.PriceToChanged(it)) },
-                        onApplyFilters = { onAction(DashboardAction.ApplyFilters) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 260.dp)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(MaterialTheme.colorScheme.outline)
-                    )
-                    ProductGrid(
-                        products = state.visibleProducts,
-                        onProductClick = { onAction(DashboardAction.OnProductClick(it)) },
-                        modifier = Modifier.weight(1f).fillMaxWidth()
+                        onAction = onAction,
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
                     )
                 }
             }
@@ -206,6 +189,7 @@ fun DashboardScreen(
 @Composable
 private fun MarketplaceHeader(
     state: DashboardUiState,
+    compact: Boolean,
     onSectionSelected: (MarketplaceSection) -> Unit,
     onSearchChanged: (String) -> Unit,
     onNavigateToChats: () -> Unit,
@@ -218,46 +202,69 @@ private fun MarketplaceHeader(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.nole_azul),
-                contentDescription = "NOLE",
-                modifier = Modifier.size(36.dp)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            SectionButton(
-                text = MarketplaceSection.FUTBOL.title,
-                selected = state.section == MarketplaceSection.FUTBOL,
-                onClick = { onSectionSelected(MarketplaceSection.FUTBOL) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SectionButton(
-                text = MarketplaceSection.COCHES.title,
-                selected = state.section == MarketplaceSection.COCHES,
-                onClick = { onSectionSelected(MarketplaceSection.COCHES) }
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            HeaderActionButton(
-                text = "Chats",
-                icon = painterResource(Res.drawable.ic_chat),
-                onClick = onNavigateToChats
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            if (state.currentUsername != null) {
-                HeaderActionButton(
-                    text = "Cerrar sesión",
-                    icon = rememberVectorPainter(Icons.AutoMirrored.Filled.ExitToApp),
-                    onClick = onLogoutClick,
-                    contentColor = MaterialTheme.colorScheme.error,
+        if (compact) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.nole_azul),
+                    contentDescription = "NOLE",
+                    modifier = Modifier.size(36.dp)
                 )
-            } else {
-                HeaderActionButton(
-                    text = "Iniciar sesión",
-                    icon = painterResource(Res.drawable.ic_person),
-                    onClick = onNavigateToLogin
+                Spacer(modifier = Modifier.weight(1f))
+                HeaderActions(
+                    state = state,
+                    onNavigateToChats = onNavigateToChats,
+                    onNavigateToLogin = onNavigateToLogin,
+                    onLogoutClick = onLogoutClick,
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SectionButton(
+                    text = MarketplaceSection.FUTBOL.title,
+                    selected = state.section == MarketplaceSection.FUTBOL,
+                    onClick = { onSectionSelected(MarketplaceSection.FUTBOL) },
+                    modifier = Modifier.weight(1f),
+                )
+                SectionButton(
+                    text = MarketplaceSection.COCHES.title,
+                    selected = state.section == MarketplaceSection.COCHES,
+                    onClick = { onSectionSelected(MarketplaceSection.COCHES) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.nole_azul),
+                    contentDescription = "NOLE",
+                    modifier = Modifier.size(36.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                SectionButton(
+                    text = MarketplaceSection.FUTBOL.title,
+                    selected = state.section == MarketplaceSection.FUTBOL,
+                    onClick = { onSectionSelected(MarketplaceSection.FUTBOL) }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SectionButton(
+                    text = MarketplaceSection.COCHES.title,
+                    selected = state.section == MarketplaceSection.COCHES,
+                    onClick = { onSectionSelected(MarketplaceSection.COCHES) }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                HeaderActions(
+                    state = state,
+                    onNavigateToChats = onNavigateToChats,
+                    onNavigateToLogin = onNavigateToLogin,
+                    onLogoutClick = onLogoutClick,
                 )
             }
         }
@@ -266,7 +273,7 @@ private fun MarketplaceHeader(
         OutlinedTextField(
             value = state.searchQuery,
             onValueChange = onSearchChanged,
-            placeholder = { Text(state.section.searchHint) },
+            placeholder = { Text(state.searchHint) },
             leadingIcon = {
                 Icon(
                     painter = painterResource(Res.drawable.ic_search),
@@ -277,6 +284,36 @@ private fun MarketplaceHeader(
             singleLine = true,
             colors = noleFieldColors(),
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+
+@Composable
+private fun HeaderActions(
+    state: DashboardUiState,
+    onNavigateToChats: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onLogoutClick: () -> Unit,
+) {
+    HeaderActionButton(
+        text = "Chats",
+        icon = painterResource(Res.drawable.ic_chat),
+        onClick = onNavigateToChats
+    )
+    Spacer(modifier = Modifier.width(8.dp))
+    if (state.currentUsername != null) {
+        HeaderActionButton(
+            text = "Cerrar sesión",
+            icon = rememberVectorPainter(Icons.AutoMirrored.Filled.ExitToApp),
+            onClick = onLogoutClick,
+            contentColor = MaterialTheme.colorScheme.error,
+        )
+    } else {
+        HeaderActionButton(
+            text = "Iniciar sesión",
+            icon = painterResource(Res.drawable.ic_person),
+            onClick = onNavigateToLogin
         )
     }
 }
@@ -319,6 +356,7 @@ private fun SectionButton(
     text: String,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val label = @Composable {
         Text(
@@ -332,7 +370,7 @@ private fun SectionButton(
     if (selected) {
         Button(
             onClick = onClick,
-            modifier = Modifier.height(40.dp),
+            modifier = modifier.height(40.dp),
             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
             shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(
@@ -345,7 +383,7 @@ private fun SectionButton(
     } else {
         OutlinedButton(
             onClick = onClick,
-            modifier = Modifier.height(40.dp),
+            modifier = modifier.height(40.dp),
             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
             shape = RoundedCornerShape(18.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -361,6 +399,65 @@ private fun SectionButton(
 
 
 @Composable
+private fun CompactCatalog(
+    state: DashboardUiState,
+    onAction: (DashboardAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var filtersExpanded by remember { mutableStateOf(false) }
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(168.dp),
+        modifier = modifier,
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            FilterPanel(
+                state = state,
+                onCategoryChecked = { category, checked ->
+                    onAction(DashboardAction.CategoryChecked(category, checked))
+                },
+                onConditionChecked = { condition, checked ->
+                    onAction(DashboardAction.ConditionChecked(condition, checked))
+                },
+                onPriceFromChanged = { onAction(DashboardAction.PriceFromChanged(it)) },
+                onPriceToChanged = { onAction(DashboardAction.PriceToChanged(it)) },
+                onApplyFilters = { onAction(DashboardAction.ApplyFilters) },
+                collapsible = true,
+                expanded = filtersExpanded,
+                onHeaderClick = { filtersExpanded = !filtersExpanded },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        if (state.visibleProducts.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "No hay artículos con esos filtros",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+            }
+        } else {
+            items(items = state.visibleProducts, key = { it.id }) { product ->
+                ProductCard(
+                    product = product,
+                    onClick = { onAction(DashboardAction.OnProductClick(product.id)) },
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 private fun FilterPanel(
     state: DashboardUiState,
     onCategoryChecked: (String, Boolean) -> Unit,
@@ -368,6 +465,9 @@ private fun FilterPanel(
     onPriceFromChanged: (String) -> Unit,
     onPriceToChanged: (String) -> Unit,
     onApplyFilters: () -> Unit,
+    collapsible: Boolean = false,
+    expanded: Boolean = true,
+    onHeaderClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val checkboxColors = CheckboxDefaults.colors(
@@ -380,22 +480,55 @@ private fun FilterPanel(
     Column(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surface)
-            .verticalScroll(rememberScrollState())
+            .then(if (collapsible) Modifier else Modifier.verticalScroll(rememberScrollState()))
             .padding(16.dp)
     ) {
-        Text(
-            text = "Filtros",
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Box(
-            modifier = Modifier
-                .width(36.dp)
-                .height(2.dp)
-                .background(MaterialTheme.colorScheme.primary)
-        )
+        if (collapsible) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onHeaderClick),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Filtros",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(36.dp)
+                            .height(2.dp)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                }
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Filtros",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        } else {
+            Text(
+                text = "Filtros",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .width(36.dp)
+                    .height(2.dp)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+
+        AnimatedVisibility(visible = !collapsible || expanded) {
+            Column {
 
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -404,7 +537,7 @@ private fun FilterPanel(
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
-        state.section.categories.forEach { category ->
+        state.filterCategories.forEach { category ->
             FilterCheckRow(
                 label = category,
                 checked = category in state.selectedCategories,
@@ -485,6 +618,8 @@ private fun FilterPanel(
             )
         ) {
             Text(text = "Aplicar filtros", fontWeight = FontWeight.Bold)
+        }
+            }
         }
     }
 }

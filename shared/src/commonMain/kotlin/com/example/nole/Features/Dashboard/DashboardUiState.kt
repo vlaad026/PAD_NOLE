@@ -9,7 +9,7 @@ val ProductConditions = listOf("Nuevo", "Como nuevo", "Buen estado", "Sin abrir"
 
 
 data class DashboardUiState(
-    val section: MarketplaceSection = MarketplaceSection.FUTBOL,
+    val section: MarketplaceSection? = null,
     val searchQuery: String = "",
     val selectedCategories: Set<String> = emptySet(),
     val selectedConditions: Set<String> = emptySet(),
@@ -20,6 +20,13 @@ data class DashboardUiState(
     val visibleProducts: List<CatalogItem> = emptyList(),
     val filterError: String? = null,
     val currentUsername: String? = null,
-)
+) {
+    val searchHint: String
+        get() = section?.searchHint ?: "Buscar productos..."
+
+    val filterCategories: List<String>
+        get() = section?.categories
+            ?: (MarketplaceSection.FUTBOL.categories + MarketplaceSection.COCHES.categories).distinct()
+}
 
 

@@ -7,7 +7,7 @@ import com.example.nole.domain.model.MarketplaceSection
 class FilterCatalogUseCase {
     operator fun invoke(
         items: List<CatalogItem>,
-        section: MarketplaceSection,
+        section: MarketplaceSection?,
         searchQuery: String,
         selectedCategories: Set<String>,
         selectedConditions: Set<String>,
@@ -16,7 +16,8 @@ class FilterCatalogUseCase {
     ): List<CatalogItem> {
         val query = searchQuery.trim()
         return items.filter { item ->
-            if (item.isSold || item.section != section) return@filter false
+            if (item.isSold) return@filter false
+            if (section != null && item.section != section) return@filter false
             val matchesQuery = query.isEmpty() ||
                 item.title.contains(query, ignoreCase = true) ||
                 item.subCategory.contains(query, ignoreCase = true) ||

@@ -51,17 +51,15 @@ class DashboardViewModel(
         when (action) {
             is DashboardAction.SectionSelected -> {
                 filters.update { state ->
-                    if (state.section == action.section) return@update state
+                    val nextSection = if (state.section == action.section) null else action.section
+                    val allowed = nextSection?.categories
                     state.copy(
-                        section = action.section,
-                        searchQuery = "",
-                        selectedCategories = emptySet(),
-                        selectedConditions = emptySet(),
-                        priceFromInput = "",
-                        priceToInput = "",
-                        appliedPriceFrom = null,
-                        appliedPriceTo = null,
-                        filterError = null,
+                        section = nextSection,
+                        selectedCategories = if (allowed == null) {
+                            state.selectedCategories
+                        } else {
+                            state.selectedCategories.filter { it in allowed }.toSet()
+                        },
                     )
                 }
             }
